@@ -21,10 +21,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nats-io/nats.go"
-	"github.com/nats-io/nats.go/encoders/builtin"
-	"github.com/nats-io/nats.go/encoders/protobuf"
-	"github.com/nats-io/nats.go/encoders/protobuf/testdata"
+	"github.com/hanzoai/pubsub-go"
+	"github.com/hanzoai/pubsub-go/encoders/builtin"
+	"github.com/hanzoai/pubsub-go/encoders/protobuf"
+	"github.com/hanzoai/pubsub-go/encoders/protobuf/testdata"
 )
 
 //lint:file-ignore SA1019 Ignore deprecation warnings for EncodedConn

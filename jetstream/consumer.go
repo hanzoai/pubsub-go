@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nats-io/nats.go/internal/syncx"
+	"github.com/hanzoai/pubsub-go/internal/syncx"
 	"github.com/nats-io/nuid"
 )
 

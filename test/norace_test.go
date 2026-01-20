@@ -26,7 +26,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nats-io/nats.go"
+	"github.com/hanzoai/pubsub-go"
 )
 
 func TestNoRaceObjectContextOpt(t *testing.T) {

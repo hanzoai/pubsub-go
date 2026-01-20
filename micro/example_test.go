@@ -19,8 +19,8 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/nats-io/nats.go"
-	"github.com/nats-io/nats.go/micro"
+	"github.com/hanzoai/pubsub-go"
+	"github.com/hanzoai/pubsub-go/micro"
 )
 
 func ExampleAddService() {
