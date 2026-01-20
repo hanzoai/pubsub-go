@@ -31,7 +31,7 @@ import (
 
 	"github.com/nats-io/nats-server/v2/server"
 	natsserver "github.com/nats-io/nats-server/v2/test"
-	"github.com/nats-io/nats.go"
+	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/nuid"
 )
 

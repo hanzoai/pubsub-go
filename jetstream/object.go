@@ -29,8 +29,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nats-io/nats.go"
-	"github.com/nats-io/nats.go/internal/parser"
+	"github.com/hanzoai/pubsub-go"
+	"github.com/hanzoai/pubsub-go/internal/parser"
 	"github.com/nats-io/nuid"
 )
 
