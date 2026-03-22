@@ -1,6 +1,6 @@
 module github.com/hanzoai/pubsub-go
 
-go 1.26
+go 1.26.1
 
 require (
 	github.com/golang/protobuf v1.5.4
