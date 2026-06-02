@@ -1,4 +1,4 @@
-// Copyright 2022-2024 The NATS Authors
+// Copyright 2022-2026 The NATS Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -212,6 +212,16 @@ type (
 
 		// ResumeConsumer resumes a paused consumer.
 		ResumeConsumer(ctx context.Context, stream string, consumer string) (*ConsumerPauseResponse, error)
+
+		// ResetConsumer resets a consumer's delivery state. The consumer is
+		// reset to deliver from ack_floor + 1.
+		ResetConsumer(ctx context.Context, stream, consumer string) (*ConsumerResetResponse, error)
+
+		// ResetConsumerToSequence resets a consumer's delivery state to the
+		// given stream sequence. The seq must be compatible with the
+		// consumer's DeliverPolicy. If incompatible, ErrConsumerInvalidReset
+		// is returned.
+		ResetConsumerToSequence(ctx context.Context, stream, consumer string, seq uint64) (*ConsumerResetResponse, error)
 
 		// CreateOrUpdatePushConsumer creates a push consumer on a given stream with
 		// the given config. If consumer already exists, it will be updated (if
@@ -616,6 +626,9 @@ func (js *jetStream) CreateStream(ctx context.Context, cfg StreamConfig) (Stream
 		}
 		return nil, resp.Error
 	}
+	if resp.StreamInfo == nil {
+		return nil, ErrInvalidJetStreamResponse
+	}
 
 	// check that input subject transform (if used) is reflected in the returned StreamInfo
 	if cfg.SubjectTransform != nil && resp.StreamInfo.Config.SubjectTransform == nil {
@@ -739,6 +752,9 @@ func (js *jetStream) UpdateStream(ctx context.Context, cfg StreamConfig) (Stream
 		}
 		return nil, resp.Error
 	}
+	if resp.StreamInfo == nil {
+		return nil, ErrInvalidJetStreamResponse
+	}
 
 	// check that input subject transform (if used) is reflected in the returned StreamInfo
 	if cfg.SubjectTransform != nil && resp.StreamInfo.Config.SubjectTransform == nil {
@@ -807,6 +823,9 @@ func (js *jetStream) Stream(ctx context.Context, name string) (Stream, error) {
 			return nil, ErrStreamNotFound
 		}
 		return nil, resp.Error
+	}
+	if resp.StreamInfo == nil {
+		return nil, ErrInvalidJetStreamResponse
 	}
 	return &stream{
 		js:   js,
@@ -976,6 +995,20 @@ func (js *jetStream) ResumeConsumer(ctx context.Context, stream string, consumer
 		return nil, err
 	}
 	return resumeConsumer(ctx, js, stream, consumer)
+}
+
+func (js *jetStream) ResetConsumer(ctx context.Context, stream, consumer string) (*ConsumerResetResponse, error) {
+	if err := validateStreamName(stream); err != nil {
+		return nil, err
+	}
+	return resetConsumer(ctx, js, stream, consumer, 0)
+}
+
+func (js *jetStream) ResetConsumerToSequence(ctx context.Context, stream, consumer string, seq uint64) (*ConsumerResetResponse, error) {
+	if err := validateStreamName(stream); err != nil {
+		return nil, err
+	}
+	return resetConsumer(ctx, js, stream, consumer, seq)
 }
 
 func validateStreamName(stream string) error {
