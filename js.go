@@ -2029,10 +2029,7 @@ func (js *js) subscribe(subj, queue string, cb MsgHandler, ch chan *Msg, isSync,
 	// If maxap is greater than the default sub's pending limit, use that.
 	if maxap > DefaultSubPendingMsgsLimit {
 		// For bytes limit, use the min of maxp*1MB or DefaultSubPendingBytesLimit
-		bl := maxap * 1024 * 1024
-		if bl < DefaultSubPendingBytesLimit {
-			bl = DefaultSubPendingBytesLimit
-		}
+		bl := max(maxap*1024*1024, DefaultSubPendingBytesLimit)
 		if err := sub.SetPendingLimits(maxap, bl); err != nil {
 			return nil, err
 		}
@@ -3114,10 +3111,7 @@ func (sub *Subscription) Fetch(batch int, opts ...PullOpt) ([]*Msg, error) {
 			}
 
 			// Make our request expiration a bit shorter than the current timeout.
-			expiresDiff := time.Duration(float64(ttl) * 0.1)
-			if expiresDiff > 5*time.Second {
-				expiresDiff = 5 * time.Second
-			}
+			expiresDiff := min(time.Duration(float64(ttl)*0.1), 5*time.Second)
 			expires := ttl - expiresDiff
 
 			nr.Batch = batch - len(msgs)
@@ -3398,10 +3392,7 @@ func (sub *Subscription) FetchBatch(batch int, opts ...PullOpt) (MessageBatch, e
 	ttl = time.Until(deadline)
 
 	// Make our request expiration a bit shorter than the current timeout.
-	expiresDiff := time.Duration(float64(ttl) * 0.1)
-	if expiresDiff > 5*time.Second {
-		expiresDiff = 5 * time.Second
-	}
+	expiresDiff := min(time.Duration(float64(ttl)*0.1), 5*time.Second)
 	expires := ttl - expiresDiff
 
 	connStatusChanged := nc.StatusChanged()
@@ -3752,6 +3743,13 @@ const (
 	// AckExplicitPolicy requires ack or nack for all messages.
 	AckExplicitPolicy
 
+	// AckFlowControlPolicy functions like AckAllPolicy, but acks based on
+	// responses to flow control. Used by durable stream sourcing and
+	// mirroring against an existing durable push consumer.
+	//
+	// This feature requires nats-server v2.14.0 or later.
+	AckFlowControlPolicy
+
 	// For configuration mismatch check
 	ackPolicyNotSet = 99
 )
@@ -3768,6 +3766,8 @@ func (p *AckPolicy) UnmarshalJSON(data []byte) error {
 		*p = AckAllPolicy
 	case jsonString("explicit"):
 		*p = AckExplicitPolicy
+	case jsonString("flow_control"):
+		*p = AckFlowControlPolicy
 	default:
 		return fmt.Errorf("nats: can not unmarshal %q", data)
 	}
@@ -3783,6 +3783,8 @@ func (p AckPolicy) MarshalJSON() ([]byte, error) {
 		return json.Marshal("all")
 	case AckExplicitPolicy:
 		return json.Marshal("explicit")
+	case AckFlowControlPolicy:
+		return json.Marshal("flow_control")
 	default:
 		return nil, fmt.Errorf("nats: unknown acknowledgement policy %v", p)
 	}
@@ -3796,6 +3798,8 @@ func (p AckPolicy) String() string {
 		return "AckAll"
 	case AckExplicitPolicy:
 		return "AckExplicit"
+	case AckFlowControlPolicy:
+		return "AckFlowControl"
 	case ackPolicyNotSet:
 		return "Not Initialized"
 	default:

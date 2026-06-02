@@ -358,6 +358,32 @@ func TestWSParseInvalidFrames(t *testing.T) {
 	if n != 0 || err == nil || !strings.Contains(err.Error(), "unknown opcode") {
 		t.Fatalf("Unexpected error: n=%v err=%v", n, err)
 	}
+
+	// 64-bit frame length with MSB set
+	mr, r = newReader()
+	mr.buf.Write([]byte{130, 127, 128, 0, 0, 0, 0, 0, 0, 1})
+	n, err = r.Read(p)
+	if n != 0 || err == nil || !strings.Contains(err.Error(), "MSB set") {
+		t.Fatalf("Unexpected error: n=%v err=%v", n, err)
+	}
+
+	// 64-bit frame length exceeding absolute max (64MB)
+	mr, r = newReader()
+	mr.buf.Write([]byte{130, 127, 0, 0, 0, 0, 8, 0, 0, 0}) // 128MB
+	n, err = r.Read(p)
+	if n != 0 || err == nil || !strings.Contains(err.Error(), "too large") {
+		t.Fatalf("Unexpected error: n=%v err=%v", n, err)
+	}
+
+	// 64-bit frame length exceeding MaxPayload-derived limit
+	mr, r = newReader()
+	r.nc = &Conn{}
+	r.nc.info.MaxPayload = 1024 * 1024                     // 1MB -> max frame = 8MB
+	mr.buf.Write([]byte{130, 127, 0, 0, 0, 0, 1, 0, 0, 0}) // 16MB
+	n, err = r.Read(p)
+	if n != 0 || err == nil || !strings.Contains(err.Error(), "too large") {
+		t.Fatalf("Unexpected error: n=%v err=%v", n, err)
+	}
 }
 
 func TestWSControlFrameBetweenDataFrames(t *testing.T) {
@@ -653,6 +679,91 @@ func TestWSProxyPath(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestWSURLPath(t *testing.T) {
+	l, err := net.Listen("tcp", ":0")
+	if err != nil {
+		t.Fatalf("Error in listen: %v", err)
+	}
+	defer l.Close()
+
+	port := l.Addr().(*net.TCPAddr).Port
+
+	ch := make(chan string, 1)
+	srv := &http.Server{
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ch <- r.URL.RequestURI()
+		}),
+	}
+	defer srv.Shutdown(context.Background())
+	go srv.Serve(l)
+
+	for _, test := range []struct {
+		name     string
+		path     string
+		expected string
+	}{
+		{"with path", "/mypath", "/mypath"},
+		{"with nested path", "/my/nested/path", "/my/nested/path"},
+		{"with query params", "/mypath?token=abc&foo=bar", "/mypath?token=abc&foo=bar"},
+		{"query only", "/?token=abc", "/?token=abc"},
+		{"encoded query value", "/mypath?msg=hello%20world", "/mypath?msg=hello%20world"},
+		{"trailing slash with query", "/mypath/?key=val", "/mypath/?key=val"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			url := fmt.Sprintf("ws://127.0.0.1:%d%s", port, test.path)
+			nc, err := Connect(url)
+			if err == nil {
+				nc.Close()
+				t.Fatal("Did not expect to connect")
+			}
+			select {
+			case got := <-ch:
+				if got != test.expected {
+					t.Fatalf("Expected URI %q, got %q", test.expected, got)
+				}
+			case <-time.After(time.Second):
+				t.Fatal("Server was not reached")
+			}
+		})
+	}
+
+	// ProxyPath option should take precedence over URL path.
+	t.Run("proxy path overrides url path", func(t *testing.T) {
+		url := fmt.Sprintf("ws://127.0.0.1:%d/url-path", port)
+		nc, err := Connect(url, ProxyPath("/override"))
+		if err == nil {
+			nc.Close()
+			t.Fatal("Did not expect to connect")
+		}
+		select {
+		case got := <-ch:
+			if got != "/override" {
+				t.Fatalf("Expected URI %q, got %q", "/override", got)
+			}
+		case <-time.After(time.Second):
+			t.Fatal("Server was not reached")
+		}
+	})
+
+	// Query params from the URL should be preserved even when ProxyPath is set.
+	t.Run("proxy path preserves query params", func(t *testing.T) {
+		url := fmt.Sprintf("ws://127.0.0.1:%d/ignored?token=secret", port)
+		nc, err := Connect(url, ProxyPath("/proxy"))
+		if err == nil {
+			nc.Close()
+			t.Fatal("Did not expect to connect")
+		}
+		select {
+		case got := <-ch:
+			if got != "/proxy?token=secret" {
+				t.Fatalf("Expected URI %q, got %q", "/proxy?token=secret", got)
+			}
+		case <-time.After(time.Second):
+			t.Fatal("Server was not reached")
+		}
+	})
 }
 
 // --- helpers ---
