@@ -1,4 +1,4 @@
-# LLM.md - Hanzo Pubsub Go
+# Hanzo Pubsub Go
 
 ## Overview
 Go module: github.com/hanzoai/pubsub-go
