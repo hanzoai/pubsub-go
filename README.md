@@ -1,3 +1,5 @@
+<p align="center"><img src=".github/hero.svg" alt="pubsub-go" width="880"></p>
+
 # NATS - Go Client
 A [Go](http://golang.org) client for the [NATS messaging system](https://nats.io).
 
