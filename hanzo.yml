@@ -24,4 +24,10 @@ test:
   - name: build
     run: go build ./...
   - name: test
-    run: go test -count=1 ./...
+    # -p 1 runs one package at a time. The jetstream tests start real servers
+    # and wait on them, so several packages doing that at once on a shared
+    # runner starve each other and the waits expire:
+    #   --- FAIL: TestConsumerPinned/consume (10.38s)
+    #   --- FAIL: TestAccountInfo/jetstream_not_enabled_on_server (10.02s)
+    # Same tests, not competing for the same cores.
+    run: go test -count=1 -p 1 -timeout 40m ./...
