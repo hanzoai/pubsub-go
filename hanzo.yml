@@ -1,0 +1,33 @@
+# Canonical CI/CD config for hanzoai/pubsub-go — read by the hanzoai/ci reusable
+# (.hanzo/workflows/cicd.yml) and by platform.hanzo.ai.
+#
+# A Go client library: ships from a tag as a module, builds no image, so no
+# `images:` and no `deploy:`. The suite runs an embedded nats-server in-process,
+# so it needs no external broker.
+#
+# `./...` under the repo's own go.mod, NOT the `-modfile=go_test.mod` path that
+# scripts/cov.sh still uses. go_test.mod's first line is
+# `module github.com/nats-io/nats.go` — it was never renamed with the fork — so
+# every internal import (`github.com/hanzoai/pubsub-go/internal/parser`, …)
+# fails to resolve under it and the whole suite dies at setup. Under go.mod the
+# same tests compile and run.
+#
+# The gate is RED on arrival, and for a stated reason: go.mod pins nats-server
+# v2.12.3 while go_test.mod pins v2.12.6, and ~14 jetstream tests exercise
+# message schedules, which the older server rejects with
+# `err_code=10189 message schedules pattern is invalid`. That is a real
+# disagreement between what this library tests and the server it resolves —
+# worth seeing on every run until the pins agree, rather than hidden behind a
+# gate narrow enough to stay green.
+
+test:
+  - name: build
+    run: go build ./...
+  - name: test
+    # -p 1 runs one package at a time. The jetstream tests start real servers
+    # and wait on them, so several packages doing that at once on a shared
+    # runner starve each other and the waits expire:
+    #   --- FAIL: TestConsumerPinned/consume (10.38s)
+    #   --- FAIL: TestAccountInfo/jetstream_not_enabled_on_server (10.02s)
+    # Same tests, not competing for the same cores.
+    run: go test -count=1 -p 1 -timeout 40m ./...
