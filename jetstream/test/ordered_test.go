@@ -394,7 +394,7 @@ func TestOrderedConsumerConsume(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -454,7 +454,7 @@ func TestOrderedConsumerConsume(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -475,7 +475,7 @@ func TestOrderedConsumerConsume(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 		wg.Add(50)
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -559,7 +559,7 @@ func TestOrderedConsumerConsume(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			c, err := s.OrderedConsumer(context.Background(), jetstream.OrderedConsumerConfig{})
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -622,7 +622,7 @@ func TestOrderedConsumerConsume(t *testing.T) {
 		publishTestMsgs(t, js)
 
 		// wait for the consumer to be recreated before calling drain
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			_, err = c.Info(ctx)
 			if err != nil {
 				if errors.Is(err, jetstream.ErrConsumerNotFound) {
@@ -743,7 +743,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 		defer it.Stop()
 
 		publishTestMsgs(t, js)
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error: %s", err)
@@ -755,7 +755,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 			t.Fatal(err)
 		}
 		publishTestMsgs(t, js)
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error: %s", err)
@@ -800,7 +800,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 		defer it.Stop()
 
 		publishTestMsgs(t, js)
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error: %s", err)
@@ -810,7 +810,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 		srv = restartBasicJSServer(t, srv)
 		defer shutdownJSServerAndRemoveStorage(t, srv)
 		publishTestMsgs(t, js)
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error: %s", err)
@@ -859,7 +859,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 		defer it.Stop()
 
 		publishTestMsgs(t, js)
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error: %s", err)
@@ -867,7 +867,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 			msgs = append(msgs, msg)
 		}
 		publishTestMsgs(t, js)
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error: %s", err)
@@ -899,7 +899,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -915,7 +915,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 50; i++ {
+		for range 50 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -970,7 +970,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -986,7 +986,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1002,12 +1002,12 @@ func TestOrderedConsumerMessages(t *testing.T) {
 		if err := s.DeleteConsumer(ctx, c.CachedInfo().Name); err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
 		}
-		for i := 0; i < 50; i++ {
+		for range 50 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1149,7 +1149,7 @@ func TestOrderedConsumerMessages(t *testing.T) {
 			time.Sleep(100 * time.Millisecond)
 			it.Drain()
 		}()
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error fetching next message: %s", err)
@@ -1261,12 +1261,12 @@ func TestOrderedConsumerFetch(t *testing.T) {
 		}
 		msgs := make([]jetstream.Msg, 0)
 
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish(context.Background(), "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish(context.Background(), "FOO.B", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -1850,8 +1850,7 @@ func TestOrderedConsumerNextMaxWait(t *testing.T) {
 	}
 	defer nc.Close()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	s, err := js.CreateStream(ctx, jetstream.StreamConfig{Name: "foo", Subjects: []string{"FOO.*"}})
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
@@ -1881,13 +1880,12 @@ func TestOrderedConsumerNextOrder(t *testing.T) {
 	}
 	defer nc.Close()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	publishFailed := make(chan error, 1)
 
 	go func() {
-		for i := 0; i < 1000; i++ {
+		for range 1000 {
 			_, err := js.Publish(ctx, "FOO.A", []byte(fmt.Sprintf("%d", 1)))
 			if err != nil {
 				publishFailed <- err
@@ -1904,7 +1902,7 @@ func TestOrderedConsumerNextOrder(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 1000; i++ {
+	for i := range 1000 {
 
 		select {
 		case err := <-publishFailed:
@@ -2296,8 +2294,7 @@ func TestOrderedConsumerCustomPrefix(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	s, err := js.CreateStream(ctx, jetstream.StreamConfig{
 		Name:     "TEST",

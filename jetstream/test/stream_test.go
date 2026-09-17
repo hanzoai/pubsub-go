@@ -691,7 +691,7 @@ func TestStreamInfo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		if _, err := js.Publish(context.Background(), "FOO.A", []byte(fmt.Sprintf("msg %d on subject A", i))); err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
@@ -769,7 +769,7 @@ func TestSubjectsFilterPaging(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
-	for i := 0; i < 110000; i++ {
+	for i := range 110000 {
 		if _, err := js.PublishAsync(fmt.Sprintf("FOO.%d", i), nil); err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
@@ -1560,7 +1560,7 @@ func TestPurgeStream(t *testing.T) {
 				t.Fatalf("Unexpected error: %v", err)
 			}
 
-			for i := 0; i < 5; i++ {
+			for i := range 5 {
 				if _, err := js.Publish(context.Background(), "FOO.1", []byte(fmt.Sprintf("msg %d on FOO.1", i))); err != nil {
 					t.Fatalf("Unexpected error: %v", err)
 				}

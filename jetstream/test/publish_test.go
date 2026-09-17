@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nats-io/nats-server/v2/server"
 	"github.com/hanzoai/pubsub-go"
 	"github.com/hanzoai/pubsub-go/jetstream"
+	"github.com/nats-io/nats-server/v2/server"
 )
 
 func TestPublishMsg(t *testing.T) {
@@ -1614,7 +1614,7 @@ func TestPublishMsgAsyncWithPendingMsgs(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			_, err = js.PublishAsync("FOO.1", []byte("msg"))
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -1651,7 +1651,7 @@ func TestPublishMsgAsyncWithPendingMsgs(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			_, err = js.PublishAsync("FOO.1", []byte("msg"), jetstream.WithStallWait(10*time.Millisecond))
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -1685,7 +1685,7 @@ func TestPublishMsgAsyncWithPendingMsgs(t *testing.T) {
 		}
 
 		go func() {
-			for i := 0; i < 50; i++ {
+			for range 50 {
 				_, _ = js.PublishAsync("FOO.1", []byte("msg"))
 			}
 		}()
@@ -1725,7 +1725,7 @@ func TestPublishAsyncResetPendingOnReconnect(t *testing.T) {
 	acks := make(chan jetstream.PubAckFuture, 100)
 	wg := sync.WaitGroup{}
 	go func() {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if ack, err := js.PublishAsync("FOO.A", []byte("hello")); err != nil {
 				errs <- err
 				return
@@ -1886,7 +1886,7 @@ func TestPublishAsyncRetryInErrHandler(t *testing.T) {
 	errs := make(chan error, 1)
 	done := make(chan struct{}, 1)
 	go func() {
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			if _, err := js.PublishAsync("FOO.A", []byte("hello"), jetstream.WithRetryAttempts(0)); err != nil {
 				errs <- err
 				return

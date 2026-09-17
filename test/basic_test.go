@@ -250,12 +250,10 @@ func TestMultipleClose(t *testing.T) {
 	nc := NewDefaultConnection(t)
 
 	var wg sync.WaitGroup
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		go func() {
+	for range 10 {
+		wg.Go(func() {
 			nc.Close()
-			wg.Done()
-		}()
+		})
 	}
 	wg.Wait()
 }
@@ -320,7 +318,7 @@ func TestPublishDoesNotFailOnSlowConsumer(t *testing.T) {
 	var pubErr error
 
 	msg := []byte("Hello")
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		pubErr = nc.Publish("foo", msg)
 		if pubErr != nil {
 			break
@@ -512,7 +510,7 @@ func TestFlush(t *testing.T) {
 	defer nc.Close()
 
 	omsg := []byte("Hello World")
-	for i := 0; i < 10000; i++ {
+	for range 10000 {
 		nc.Publish("flush", omsg)
 	}
 	if err := nc.FlushTimeout(0); err == nil {
@@ -552,7 +550,7 @@ func TestQueueSubscriber(t *testing.T) {
 	s2.NextMsg(time.Second)
 
 	total := 1000
-	for i := 0; i < total; i++ {
+	for range total {
 		nc.Publish("foo", omsg)
 	}
 	nc.Flush()
@@ -631,7 +629,7 @@ func TestUnsubscribe(t *testing.T) {
 		}
 	})
 	send := 20
-	for i := 0; i < send; i++ {
+	for range send {
 		nc.Publish("foo", []byte("hello"))
 	}
 	nc.Flush()
@@ -823,7 +821,7 @@ func TestSimultaneousRequests(t *testing.T) {
 	wg := sync.WaitGroup{}
 	wg.Add(50)
 	errCh := make(chan error, 50)
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		go func() {
 			defer wg.Done()
 			if _, err := nc.Request("foo", nil, 2*time.Second); err != nil {
@@ -843,12 +841,10 @@ func TestRequestClose(t *testing.T) {
 	defer nc.Close()
 
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		time.Sleep(100 * time.Millisecond)
 		nc.Close()
-	}()
+	})
 	nc.SubscribeSync("foo")
 	if _, err := nc.Request("foo", []byte("help"), 2*time.Second); err != nats.ErrInvalidConnection && err != nats.ErrConnectionClosed {
 		t.Fatalf("Expected connection error: got %v", err)
@@ -899,7 +895,7 @@ func TestReleaseFlush(t *testing.T) {
 	defer s.Shutdown()
 	nc := NewDefaultConnection(t)
 
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		nc.Publish("foo", []byte("Hello"))
 	}
 	go nc.Close()
@@ -922,7 +918,7 @@ func TestStats(t *testing.T) {
 	data := []byte("The quick brown fox jumped over the lazy dog")
 	iter := 10
 
-	for i := 0; i < iter; i++ {
+	for range iter {
 		nc.Publish("foo", data)
 	}
 
@@ -941,7 +937,7 @@ func TestStats(t *testing.T) {
 	nc.Subscribe("foo", func(_ *nats.Msg) {})
 	nc.SubscribeSync("foo")
 
-	for i := 0; i < iter; i++ {
+	for range iter {
 		nc.Publish("foo", data)
 	}
 	nc.Flush()

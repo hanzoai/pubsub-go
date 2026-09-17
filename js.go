@@ -701,7 +701,7 @@ func (js *js) newAsyncReply() string {
 		sha := sha256.New()
 		sha.Write([]byte(nuid.Next()))
 		b := sha.Sum(nil)
-		for i := 0; i < aReplyTokensize; i++ {
+		for i := range aReplyTokensize {
 			b[i] = rdigits[int(b[i]%base)]
 		}
 		js.rpre = fmt.Sprintf("%s%s.", js.replyPrefix, b[:aReplyTokensize])
@@ -4136,7 +4136,7 @@ func getHash(name string) string {
 	sha := sha256.New()
 	sha.Write([]byte(name))
 	b := sha.Sum(nil)
-	for i := 0; i < nameHashLen; i++ {
+	for i := range nameHashLen {
 		b[i] = rdigits[int(b[i]%base)]
 	}
 	return string(b[:nameHashLen])

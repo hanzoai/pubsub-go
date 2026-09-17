@@ -825,10 +825,7 @@ func retryWithBackoff(f func(int) (bool, error), opts backoffOpts) error {
 			return nil
 		case <-time.After(interval):
 		}
-		interval = time.Duration(float64(interval) * opts.factor)
-		if interval >= opts.maxInterval {
-			interval = opts.maxInterval
-		}
+		interval = min(time.Duration(float64(interval)*opts.factor), opts.maxInterval)
 	}
 	return err
 }

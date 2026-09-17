@@ -686,7 +686,7 @@ func (c *consumerLister) Next() bool {
 	}
 
 	req, err := json.Marshal(consumersRequest{
-		apiPagedRequest: apiPagedRequest{Offset: c.offset},
+		Offset: c.offset,
 	})
 	if err != nil {
 		c.err = err
@@ -804,7 +804,7 @@ func (c *consumerNamesLister) Next() bool {
 	}
 
 	req, err := json.Marshal(consumersRequest{
-		apiPagedRequest: apiPagedRequest{Offset: c.offset},
+		Offset: c.offset,
 	})
 	if err != nil {
 		c.err = err
@@ -1559,8 +1559,8 @@ func (s *streamLister) Next() bool {
 	}
 
 	req, err := json.Marshal(streamNamesRequest{
-		apiPagedRequest: apiPagedRequest{Offset: s.offset},
-		Subject:         s.js.opts.streamListSubject,
+		Offset:  s.offset,
+		Subject: s.js.opts.streamListSubject,
 	})
 	if err != nil {
 		s.err = err
@@ -1666,8 +1666,8 @@ func (l *streamNamesLister) Next() bool {
 	}
 
 	req, err := json.Marshal(streamNamesRequest{
-		apiPagedRequest: apiPagedRequest{Offset: l.offset},
-		Subject:         l.js.opts.streamListSubject,
+		Offset:  l.offset,
+		Subject: l.js.opts.streamListSubject,
 	})
 	if err != nil {
 		l.err = err

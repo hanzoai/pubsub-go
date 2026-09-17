@@ -21,7 +21,7 @@ import (
 func TestTimerPool(t *testing.T) {
 	var tp timerPool
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		tm := tp.Get(time.Millisecond * 20)
 
 		select {

@@ -29,9 +29,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/nats-server/v2/server"
 	natsserver "github.com/nats-io/nats-server/v2/test"
-	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/nuid"
 )
 
@@ -76,9 +76,9 @@ func TestWSBasic(t *testing.T) {
 	}
 
 	msgs := make([][]byte, 100)
-	for i := 0; i < len(msgs); i++ {
+	for i := range msgs {
 		msg := make([]byte, rand.Intn(70000))
-		for j := 0; j < len(msg); j++ {
+		for j := range msg {
 			msg[j] = 'A' + byte(rand.Intn(26))
 		}
 		msgs[i] = msg
@@ -93,7 +93,7 @@ func TestWSBasic(t *testing.T) {
 		}
 	}
 
-	for i := 0; i < len(msgs); i++ {
+	for i := range msgs {
 		msg, err := sub.NextMsg(time.Second)
 		if err != nil {
 			t.Fatalf("Error getting next message: %v", err)
@@ -192,7 +192,7 @@ func TestWSConcurrentConns(t *testing.T) {
 	errCh := make(chan error, total)
 	wg := sync.WaitGroup{}
 	wg.Add(total)
-	for i := 0; i < total; i++ {
+	for range total {
 		go func() {
 			defer wg.Done()
 
@@ -257,9 +257,9 @@ func TestWSCompression(t *testing.T) {
 			}
 
 			msgs := make([][]byte, 100)
-			for i := 0; i < len(msgs); i++ {
+			for i := range msgs {
 				msg := make([]byte, msgSize)
-				for j := 0; j < len(msg); j++ {
+				for j := range msg {
 					msg[j] = 'A'
 				}
 				msgs[i] = msg
@@ -274,7 +274,7 @@ func TestWSCompression(t *testing.T) {
 				}
 			}
 
-			for i := 0; i < len(msgs); i++ {
+			for i := range msgs {
 				msg, err := sub.NextMsg(time.Second)
 				if err != nil {
 					t.Fatalf("Error getting next message (%d): %v", i+1, err)
@@ -471,7 +471,7 @@ func TestWSStress(t *testing.T) {
 	// match the expected content.
 	maxPayloadSize := 100000
 	mainPayload := make([]byte, maxPayloadSize)
-	for i := 0; i < len(mainPayload); i++ {
+	for i := range mainPayload {
 		mainPayload[i] = 'A' + byte(rand.Intn(26))
 	}
 	for _, test := range []struct {
@@ -487,7 +487,7 @@ func TestWSStress(t *testing.T) {
 			s := RunServerWithOptions(sopts)
 			defer s.Shutdown()
 
-			var count int64
+			var count atomic.Int64
 			consDoneCh := make(chan struct{}, 1)
 			errCh := make(chan error, 1)
 			prodDoneCh := make(chan struct{}, prods)
@@ -529,14 +529,14 @@ func TestWSStress(t *testing.T) {
 					pushErr(errors.New("invalid content"))
 					return
 				}
-				if atomic.AddInt64(&count, 1) == totalRecv {
+				if count.Add(1) == totalRecv {
 					consDoneCh <- struct{}{}
 				}
 			}
 
 			subjects := []string{"foo", "bar"}
 			for _, subj := range subjects {
-				for i := 0; i < 2; i++ {
+				for range 2 {
 					nc := createConn()
 					defer nc.Close()
 					sub, err := nc.Subscribe(subj, cb)
@@ -553,14 +553,14 @@ func TestWSStress(t *testing.T) {
 			msgsPerProd := int(total / int64(prods))
 			prodPerSubj := prods / len(subjects)
 			for _, subj := range subjects {
-				for i := 0; i < prodPerSubj; i++ {
+				for range prodPerSubj {
 					go func(subj string) {
 						defer func() { prodDoneCh <- struct{}{} }()
 
 						nc := createConn()
 						defer nc.Close()
 
-						for i := 0; i < msgsPerProd; i++ {
+						for range msgsPerProd {
 							// Have 80% of messages being rather small (<=1024)
 							maxSize := 1024
 							if rand.Intn(100) > 80 {
@@ -580,7 +580,7 @@ func TestWSStress(t *testing.T) {
 				}
 			}
 
-			for i := 0; i < prods; i++ {
+			for range prods {
 				select {
 				case <-prodDoneCh:
 				case e := <-errCh:
@@ -668,9 +668,9 @@ func TestWsWithCustomHeaders(t *testing.T) {
 			}
 
 			msgs := make([][]byte, 100)
-			for i := 0; i < len(msgs); i++ {
+			for i := range msgs {
 				msg := make([]byte, 100)
-				for j := 0; j < len(msg); j++ {
+				for j := range msg {
 					msg[j] = 'A'
 				}
 				msgs[i] = msg
@@ -685,7 +685,7 @@ func TestWsWithCustomHeaders(t *testing.T) {
 				}
 			}
 
-			for i := 0; i < len(msgs); i++ {
+			for i := range msgs {
 				msg, err := sub.NextMsg(time.Second)
 				if err != nil {
 					t.Fatalf("Error getting next message (%d): %v", i+1, err)

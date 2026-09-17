@@ -1209,9 +1209,7 @@ func (s *streamLister) streamInfos(ctx context.Context, streamsReq streamsReques
 	}
 
 	req := streamsRequest{
-		apiPagedRequest: apiPagedRequest{
-			Offset: s.offset,
-		},
+		Offset:  s.offset,
 		Subject: streamsReq.Subject,
 	}
 	reqJSON, err := json.Marshal(req)
@@ -1240,9 +1238,7 @@ func (s *streamLister) streamNames(ctx context.Context, streamsReq streamsReques
 	}
 
 	req := streamsRequest{
-		apiPagedRequest: apiPagedRequest{
-			Offset: s.offset,
-		},
+		Offset:  s.offset,
 		Subject: streamsReq.Subject,
 	}
 	reqJSON, err := json.Marshal(req)

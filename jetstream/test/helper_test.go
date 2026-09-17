@@ -26,9 +26,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nats-io/nats-server/v2/server"
 	"github.com/hanzoai/pubsub-go"
 	"github.com/hanzoai/pubsub-go/jetstream"
+	"github.com/nats-io/nats-server/v2/server"
 
 	natsserver "github.com/nats-io/nats-server/v2/test"
 )
@@ -174,7 +174,7 @@ func setupJSClusterWithSize(t *testing.T, clusterName string, size int) []*jsSer
 	}
 
 	routes := []string{}
-	for i := 0; i < size; i++ {
+	for i := range size {
 		o := natsserver.DefaultTestOptions
 		o.JetStream = true
 		o.ServerName = fmt.Sprintf("NODE_%d", i)

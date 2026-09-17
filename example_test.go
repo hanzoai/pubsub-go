@@ -158,7 +158,7 @@ func ExampleConn_Flush() {
 	defer nc.Close()
 
 	msg := &nats.Msg{Subject: "foo", Reply: "bar", Data: []byte("Hello World!")}
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		nc.PublishMsg(msg)
 	}
 	err := nc.Flush()
@@ -172,7 +172,7 @@ func ExampleConn_FlushTimeout() {
 	defer nc.Close()
 
 	msg := &nats.Msg{Subject: "foo", Reply: "bar", Data: []byte("Hello World!")}
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		nc.PublishMsg(msg)
 	}
 	// Only wait for up to 1 second for Flush
@@ -214,7 +214,7 @@ func ExampleSubscription_AutoUnsubscribe() {
 	})
 	sub.AutoUnsubscribe(wanted)
 
-	for i := 0; i < total; i++ {
+	for range total {
 		nc.Publish("foo", []byte("Hello"))
 	}
 	nc.Flush()
@@ -248,7 +248,7 @@ func ExampleJetStream() {
 	js.Publish("foo", []byte("Hello JS!"))
 
 	// Publish messages asynchronously.
-	for i := 0; i < 500; i++ {
+	for range 500 {
 		js.PublishAsync("foo", []byte("Hello JS Async!"))
 	}
 	select {

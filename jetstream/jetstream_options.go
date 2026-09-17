@@ -567,10 +567,7 @@ func FetchContext(ctx context.Context) FetchOpt {
 				return fmt.Errorf("%w: context deadline already exceeded", ErrInvalidOption)
 			}
 			// Use 90% of remaining time for server (capped at 1s)
-			buffer := time.Duration(float64(remaining) * 0.1)
-			if buffer > time.Second {
-				buffer = time.Second
-			}
+			buffer := min(time.Duration(float64(remaining)*0.1), time.Second)
 			req.Expires = remaining - buffer
 		}
 

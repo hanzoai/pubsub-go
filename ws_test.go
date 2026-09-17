@@ -135,12 +135,10 @@ func TestWSReader(t *testing.T) {
 	mr.buf.Write([]byte{130, 5})
 	mr.buf.WriteString("AB")
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		time.Sleep(100 * time.Millisecond)
 		mr.ch <- []byte{'C', 'D', 'E', 130, 2, 'F', 'G'}
-		wg.Done()
-	}()
+	})
 	// Read() will get "load" only the first frame, so after this call there
 	// should be no pending.
 	checkRead(100, []byte("ABCDE"), 0)
@@ -161,12 +159,10 @@ func TestWSReader(t *testing.T) {
 
 	// Close the underlying reader while reading.
 	mr.buf.Write([]byte{130, 4, 'A', 'B'})
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		time.Sleep(100 * time.Millisecond)
 		mr.close()
-		wg.Done()
-	}()
+	})
 	if _, err := r.Read(p); err != io.EOF {
 		t.Fatalf("Expected EOF, got %v", err)
 	}
@@ -291,7 +287,7 @@ func TestWSParseInvalidFrames(t *testing.T) {
 	// control frame length too long
 	mr, r = newReader()
 	mr.buf.Write([]byte{137, 126, 0, wsMaxControlPayloadSize + 10})
-	for i := 0; i < wsMaxControlPayloadSize+10; i++ {
+	for range wsMaxControlPayloadSize + 10 {
 		mr.buf.WriteByte('a')
 	}
 	n, err = r.Read(p)
@@ -809,7 +805,7 @@ func hasHeaderValue(headers []string, name, want string) bool {
 			continue
 		}
 		val := strings.TrimSpace(strings.SplitN(h, ":", 2)[1])
-		for _, part := range strings.Split(val, ",") {
+		for part := range strings.SplitSeq(val, ",") {
 			if strings.EqualFold(strings.TrimSpace(part), want) {
 				return true
 			}

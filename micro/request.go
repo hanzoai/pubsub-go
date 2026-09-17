@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 
 	"github.com/hanzoai/pubsub-go"
 )
@@ -168,9 +169,7 @@ func WithHeaders(headers Headers) RespondOpt {
 			return
 		}
 
-		for k, v := range headers {
-			m.Header[k] = v
-		}
+		maps.Copy(m.Header, headers)
 	}
 }
 

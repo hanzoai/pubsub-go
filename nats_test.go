@@ -29,6 +29,7 @@ import (
 	"reflect"
 	"regexp"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -878,7 +879,7 @@ func TestParserSplitMsg(t *testing.T) {
 	bufSize := msgSize - 3
 
 	buf = make([]byte, bufSize)
-	for i := 0; i < bufSize; i++ {
+	for i := range bufSize {
 		buf[i] = byte('a' + (i % 26))
 	}
 
@@ -1157,13 +1158,7 @@ func TestConnServers(t *testing.T) {
 		}
 
 		for _, ev := range expectedUrls {
-			found = false
-			for _, av := range serverUrls {
-				if ev == av {
-					found = true
-					break
-				}
-			}
+			found = slices.Contains(serverUrls, ev)
 			if !found {
 				stackFatalf(t, "array is missing %q in %v", ev, serverUrls)
 			}
@@ -1283,10 +1278,8 @@ func TestExpiredAuthentication(t *testing.T) {
 			addr := tl.Addr().(*net.TCPAddr)
 
 			wg := sync.WaitGroup{}
-			wg.Add(1)
 
-			go func() {
-				defer wg.Done()
+			wg.Go(func() {
 				connect := 0
 				for {
 					conn, err := l.Accept()
@@ -1312,7 +1305,7 @@ func TestExpiredAuthentication(t *testing.T) {
 					}
 					conn.Close()
 				}
-			}()
+			})
 
 			ch := make(chan bool)
 			errCh := make(chan error, 10)
@@ -1343,7 +1336,7 @@ func TestExpiredAuthentication(t *testing.T) {
 
 			if test.ignoreAbort {
 				// We expect more than 3 errors, as the connect attempt should not be aborted after 2 failed attempts.
-				for i := 0; i < 4; i++ {
+				for i := range 4 {
 					select {
 					case e := <-errCh:
 						if i == 0 && e != test.expectedErr {
@@ -1371,7 +1364,7 @@ func TestExpiredAuthentication(t *testing.T) {
 
 			// We expect 3 errors, the expired auth/revoke error, then 2 AUTHORIZATION_ERR
 			// before the connection is closed.
-			for i := 0; i < 3; i++ {
+			for i := range 3 {
 				select {
 				case e := <-errCh:
 					if i == 0 && e != test.expectedErr {
@@ -1515,7 +1508,7 @@ func TestNoPanicOnSrvPoolSizeChanging(t *testing.T) {
 	listeners := []net.Listener{}
 	ports := []int{}
 
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		l, err := net.Listen("tcp", "127.0.0.1:0")
 		if err != nil {
 			t.Fatalf("Could not listen on an ephemeral port: %v", err)
@@ -1755,9 +1748,7 @@ func TestLameDuckMode(t *testing.T) {
 	addr := tl.Addr().(*net.TCPAddr)
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		ldmInfos := []string{"INFO {\"ldm\":true}\r\n", "INFO {\"connect_urls\":[\"127.0.0.1:1234\"],\"ldm\":true}\r\n"}
 		for _, ldmInfo := range ldmInfos {
 			conn, err := l.Accept()
@@ -1781,7 +1772,7 @@ func TestLameDuckMode(t *testing.T) {
 			br.ReadLine()
 			conn.Close()
 		}
-	}()
+	})
 
 	url := fmt.Sprintf("nats://127.0.0.1:%d", addr.Port)
 	time.Sleep(100 * time.Millisecond)

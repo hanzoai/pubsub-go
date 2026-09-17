@@ -133,7 +133,7 @@ func TestNoRaceJetStreamConsumerSlowConsumer(t *testing.T) {
 
 	// Queue up 1M small messages.
 	toSend := uint64(1000000)
-	for i := uint64(0); i < toSend; i++ {
+	for range toSend {
 		nc.Publish("js.p", []byte("ok"))
 	}
 	nc.Flush()
@@ -197,7 +197,7 @@ func TestNoRaceJetStreamPushFlowControlHeartbeats_SubscribeSync(t *testing.T) {
 	// Burst and try to hit the flow control limit of the server.
 	const totalMsgs = 16536
 	payload := strings.Repeat("A", 1024)
-	for i := 0; i < totalMsgs; i++ {
+	for i := range totalMsgs {
 		if _, err := js.Publish("foo", []byte(fmt.Sprintf("i:%d/", i)+payload)); err != nil {
 			t.Fatal(err)
 		}
@@ -402,7 +402,7 @@ func TestNoRaceJetStreamPushFlowControlHeartbeats_SubscribeAsync(t *testing.T) {
 	// Burst and try to hit the flow control limit of the server.
 	const totalMsgs = 16536
 	payload := strings.Repeat("A", 1024)
-	for i := 0; i < totalMsgs; i++ {
+	for range totalMsgs {
 		if _, err := js.Publish("foo", []byte(payload)); err != nil {
 			t.Fatal(err)
 		}
@@ -480,7 +480,7 @@ func TestNoRaceJetStreamPushFlowControlHeartbeats_ChanSubscribe(t *testing.T) {
 	// Burst and try to hit the flow control limit of the server.
 	const totalMsgs = 16536
 	payload := strings.Repeat("A", 1024)
-	for i := 0; i < totalMsgs; i++ {
+	for i := range totalMsgs {
 		if _, err := js.Publish("foo", []byte(fmt.Sprintf("i:%d/", i)+payload)); err != nil {
 			t.Fatal(err)
 		}
@@ -633,7 +633,7 @@ func TestNoRaceJetStreamPushFlowControl_SubscribeAsyncAndChannel(t *testing.T) {
 	}
 	go func() {
 		payload := strings.Repeat("O", 4096)
-		for i := 0; i < totalMsgs; i++ {
+		for range totalMsgs {
 			js.PublishAsync("foo", []byte(payload))
 		}
 	}()
@@ -733,7 +733,7 @@ func TestNoRaceJetStreamChanSubscribeStall(t *testing.T) {
 
 	msg := []byte(strings.Repeat("A", 512))
 	toSend := 100_000
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		// Use plain NATS here for speed.
 		if _, err := js.PublishAsync("STALL", msg); err != nil {
 			t.Fatalf("Unexpected error: %v", err)

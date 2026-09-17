@@ -656,7 +656,7 @@ func TestMoreErrOnConnect(t *testing.T) {
 
 	errCh := make(chan error, 5)
 	go func() {
-		for i := 0; i < 5; i++ {
+		for i := range 5 {
 			conn, err := l.Accept()
 			if err != nil {
 				errCh <- fmt.Errorf("error accepting client connection: %v", err)
@@ -1049,7 +1049,7 @@ func TestCallbacksOrder(t *testing.T) {
 		t.Fatal("Did not receive message")
 	}
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		ncp.Publish("foo", []byte("test"))
 		ncp.Publish("bar", []byte("test"))
 	}
@@ -1528,7 +1528,7 @@ func TestErrStaleConnection(t *testing.T) {
 
 	errCh := make(chan error, 1)
 	go func() {
-		for i := 0; i < 2; i++ {
+		for i := range 2 {
 			conn, err := l.Accept()
 			if err != nil {
 				errCh <- fmt.Errorf("error accepting client connection: %v", err)
@@ -1759,7 +1759,7 @@ func TestLastErrorNoRace(t *testing.T) {
 	defer nc.Close()
 
 	// Restart the server several times to trigger a reconnection.
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		s.Shutdown()
 		time.Sleep(10 * time.Millisecond)
 		s = RunDefaultServer()
@@ -1931,9 +1931,7 @@ func TestCustomFlusherTimeout(t *testing.T) {
 
 	errCh := make(chan error, 1)
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for {
 			select {
 			case <-time.After(200 * time.Millisecond):
@@ -1946,7 +1944,7 @@ func TestCustomFlusherTimeout(t *testing.T) {
 				return
 			}
 		}
-	}()
+	})
 	defer nc1.Close()
 
 	addr := startStalledMockServer(t)
@@ -2319,7 +2317,7 @@ func TestBarrier(t *testing.T) {
 	}
 
 	// Send 2 "pub" messages followed by a "close" message
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		if err := nc.Publish("pub", []byte("pub msg")); err != nil {
 			t.Fatalf("Error on publish: %v", err)
 		}
@@ -2381,7 +2379,7 @@ func TestBarrier(t *testing.T) {
 	}
 	sub1.AutoUnsubscribe(1)
 	// Send 2 messages and flush
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		if err := nc.Publish("foo", []byte("hello")); err != nil {
 			t.Fatalf("Error on publish: %v", err)
 		}
@@ -2505,9 +2503,7 @@ func TestReceiveInfoRightAfterFirstPong(t *testing.T) {
 	addr := tl.Addr().(*net.TCPAddr)
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 
 		c, err := tl.Accept()
 		if err != nil {
@@ -2538,7 +2534,7 @@ func TestReceiveInfoRightAfterFirstPong(t *testing.T) {
 				return
 			}
 		}
-	}()
+	})
 
 	nc, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", addr.Port))
 	if err != nil {
@@ -2569,13 +2565,11 @@ func TestReceiveInfoWithEmptyConnectURLs(t *testing.T) {
 	ready := make(chan error, 2)
 	ch := make(chan bool, 1)
 	wg := sync.WaitGroup{}
-	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 
 		ports := []int{4222, 4223}
-		for i := 0; i < 2; i++ {
+		for i := range 2 {
 			l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", ports[i]))
 			if err != nil {
 				ready <- fmt.Errorf("error on listen: %v", err)
@@ -2627,7 +2621,7 @@ func TestReceiveInfoWithEmptyConnectURLs(t *testing.T) {
 				}
 			}
 		}
-	}()
+	})
 
 	// Wait for listener to be up and running
 	e := <-ready
@@ -2970,7 +2964,7 @@ func TestRetryOnFailedConnect(t *testing.T) {
 	if err := nc.Publish("foo", []byte("msg")); err != nil {
 		t.Fatalf("Error on publish: %v", err)
 	}
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		// Start server now
 		s := RunDefaultServer()
 		defer s.Shutdown()
@@ -3397,9 +3391,7 @@ func TestTLSHandshakeFirst(t *testing.T) {
 	errCh := make(chan error, 1)
 	doneCh := make(chan struct{})
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		conn, err := l.Accept()
 		if err != nil {
 			errCh <- fmt.Errorf("error accepting client connection: %v", err)
@@ -3432,7 +3424,7 @@ func TestTLSHandshakeFirst(t *testing.T) {
 		<-doneCh
 		// Server is done now.
 		errCh <- nil
-	}()
+	})
 
 	time.Sleep(100 * time.Millisecond)
 

@@ -26,9 +26,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/jwt/v2"
 	"github.com/nats-io/nats-server/v2/server"
-	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/nkeys"
 )
 
@@ -342,7 +342,7 @@ func TestQueueSubsOnReconnect(t *testing.T) {
 		mu.Lock()
 		defer mu.Unlock()
 
-		for i := 0; i < numSent; i++ {
+		for i := range numSent {
 			if results[i] != 1 {
 				t.Fatalf("Received incorrect number of messages, [%d] for seq: %d\n", results[i], i)
 			}
@@ -373,7 +373,7 @@ func TestQueueSubsOnReconnect(t *testing.T) {
 
 	// Helper function to send messages and check results.
 	sendAndCheckMsgs := func(numToSend int) {
-		for i := 0; i < numToSend; i++ {
+		for i := range numToSend {
 			nc.Publish(subj, []byte(fmt.Sprint(i)))
 		}
 		// Wait for processing.

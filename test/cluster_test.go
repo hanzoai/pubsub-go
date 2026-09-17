@@ -24,9 +24,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/nats-server/v2/server"
 	"github.com/nats-io/nats-server/v2/test"
-	"github.com/hanzoai/pubsub-go"
 )
 
 var testServers = []string{
@@ -303,7 +303,7 @@ func TestHotSpotReconnect(t *testing.T) {
 		srvrs = servers
 	}
 
-	for i := 0; i < numClients; i++ {
+	for range numClients {
 		nc, err := nats.Connect(srvrs, opts...)
 		if err != nil {
 			t.Fatalf("Expected to connect, got err: %v\n", err)

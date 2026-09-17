@@ -791,7 +791,7 @@ func TestContextEncodedRequestWithTimeout(t *testing.T) {
 		c.Publish(reply, &response{Code: 200})
 	})
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		req := &request{Message: "Hello"}
 		resp := &response{}
 		err := c.RequestWithContext(ctx, "slow", req, resp)
@@ -951,7 +951,7 @@ func TestContextEncodedRequestWithCancel(t *testing.T) {
 		c.Publish(reply, &response{Code: 200})
 	})
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		req := &request{Message: "Hello"}
 		resp := &response{}
 		err := c.RequestWithContext(ctx, "slow", req, resp)
@@ -968,7 +968,7 @@ func TestContextEncodedRequestWithCancel(t *testing.T) {
 	// A third request with latency would make the context
 	// get canceled, but these reset the timer so deadline
 	// gets extended:
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		req := &request{Message: "World"}
 		resp := &response{}
 		err := c.RequestWithContext(ctx, "slower", req, resp)
@@ -1038,7 +1038,7 @@ func TestContextEncodedRequestWithDeadline(t *testing.T) {
 		c.Publish(reply, &response{Code: 200})
 	})
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		req := &request{Message: "Hello"}
 		resp := &response{}
 		err := c.RequestWithContext(ctx, "slow", req, resp)

@@ -426,15 +426,13 @@ func addEndpoint(s *service, name, subject string, handler Handler, metadata map
 		return fmt.Errorf("%w: invalid endpoint queue group", ErrConfigValidation)
 	}
 	endpoint := &Endpoint{
-		service: s,
-		EndpointConfig: EndpointConfig{
-			Subject:            subject,
-			Handler:            handler,
-			Metadata:           metadata,
-			QueueGroup:         queueGroup,
-			QueueGroupDisabled: noQueue,
-		},
-		Name: name,
+		service:            s,
+		Subject:            subject,
+		Handler:            handler,
+		Metadata:           metadata,
+		QueueGroup:         queueGroup,
+		QueueGroupDisabled: noQueue,
+		Name:               name,
 	}
 
 	var sub *nats.Subscription

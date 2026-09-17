@@ -359,7 +359,7 @@ func generateConsName() string {
 	sha := sha256.New()
 	sha.Write([]byte(name))
 	b := sha.Sum(nil)
-	for i := 0; i < 8; i++ {
+	for i := range 8 {
 		b[i] = rdigits[int(b[i]%base)]
 	}
 	return string(b[:8])

@@ -643,7 +643,7 @@ func TestPullConsumerFetchRace(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		if _, err := js.Publish(context.Background(), "FOO.123", []byte(fmt.Sprintf("msg-%d", i))); err != nil {
 			t.Fatalf("Unexpected error during publish: %s", err)
 		}
@@ -707,7 +707,7 @@ func TestPullConsumerFetchBytes(t *testing.T) {
 	testSubject := "FOO.123"
 	msg := [10]byte{}
 	publishTestMsgs := func(t *testing.T, js jetstream.JetStream, count int) {
-		for i := 0; i < count; i++ {
+		for range count {
 			if _, err := js.Publish(context.Background(), testSubject, msg[:]); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -1145,7 +1145,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		}
 
 		publishTestMsgs(t, js)
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1207,7 +1207,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		}
 
 		publishTestMsgs(t, js)
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1268,7 +1268,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		}
 
 		publishTestMsgs(t, js)
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1336,7 +1336,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		defer it.Stop()
 
 		publishTestMsgs(t, js)
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1406,7 +1406,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		}
 
 		publishTestMsgs(t, js)
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1475,7 +1475,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		}
 
 		publishTestMsgs(t, js)
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1528,7 +1528,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -1544,7 +1544,7 @@ func TestPullConsumerMessages(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 50; i++ {
+		for range 50 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1609,7 +1609,7 @@ func TestPullConsumerMessages(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -1620,7 +1620,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		var wg sync.WaitGroup
 
 		wg.Add(50)
-		for i := 0; i < 50; i++ {
+		for range 50 {
 			go func() {
 				defer wg.Done()
 
@@ -1716,7 +1716,7 @@ func TestPullConsumerMessages(t *testing.T) {
 		}
 
 		publishTestMsgs(t, js)
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -1737,7 +1737,7 @@ func TestPullConsumerMessages(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -2013,7 +2013,7 @@ func TestPullConsumerMessages(t *testing.T) {
 			time.Sleep(100 * time.Millisecond)
 			it.Stop()
 		}()
-		for i := 0; i < 2; i++ {
+		for range 2 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -2068,7 +2068,7 @@ func TestPullConsumerMessages(t *testing.T) {
 			time.Sleep(100 * time.Millisecond)
 			it.Drain()
 		}()
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatal(err)
@@ -2129,13 +2129,13 @@ func TestPullConsumerMessages(t *testing.T) {
 			Data:    []byte("msg"),
 		}
 		// publish 10 small messages
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			if _, err := js.PublishMsg(ctx, &smallMsg); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
 		}
 
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -2171,7 +2171,7 @@ func TestPullConsumerMessages(t *testing.T) {
 			}
 		}
 
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			msg, err := it.Next()
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -2636,7 +2636,7 @@ func TestPullConsumerConsume(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -3182,7 +3182,7 @@ func TestPullConsumerConsume(t *testing.T) {
 		}
 		wg.Add(10)
 		// publish 10 small messages
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			if _, err := js.PublishMsg(ctx, &smallMsg); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -3275,7 +3275,7 @@ func TestPullConsumerConsume(t *testing.T) {
 		}
 
 		wg.Add(10)
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			if _, err := js.Publish(ctx, "FOO.A", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error during publish: %s", err)
 			}
@@ -3511,7 +3511,7 @@ func TestPullConsumerConsume_WithCluster(t *testing.T) {
 				srvs[1].Restart()
 				wg.Add(len(testMsgs))
 
-				for i := 0; i < 10; i++ {
+				for i := range 10 {
 					time.Sleep(500 * time.Millisecond)
 					if _, err := js.Stream(context.Background(), stream.Name); err == nil {
 						break
@@ -3575,7 +3575,7 @@ func TestPullConsumerNext(t *testing.T) {
 		msgs := make([]jetstream.Msg, 0)
 
 		var i int
-		for i := 0; i < len(testMsgs); i++ {
+		for range testMsgs {
 			msg, err := c.Next()
 			if err != nil {
 				t.Fatalf("Error fetching message: %s", err)

@@ -2249,7 +2249,7 @@ func TestJetStreamCleanupPublisher(t *testing.T) {
 		numSubs := nc.NumSubscriptions()
 
 		var acks []jetstream.PubAckFuture
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			ack, err := js.PublishAsync("FOO", []byte("hello"))
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -2296,7 +2296,7 @@ func TestJetStreamCleanupPublisher(t *testing.T) {
 		}
 
 		// check that async error handler is called for each pending ack
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			select {
 			case err := <-cbErr:
 				if !errors.Is(err, jetstream.ErrJetStreamPublisherClosed) {

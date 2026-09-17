@@ -346,11 +346,11 @@ func MsgsPerClient(numMsgs, numClients int) []int {
 	}
 	counts = make([]int, numClients)
 	mc := numMsgs / numClients
-	for i := 0; i < numClients; i++ {
+	for i := range numClients {
 		counts[i] = mc
 	}
 	extra := numMsgs % numClients
-	for i := 0; i < extra; i++ {
+	for i := range extra {
 		counts[i]++
 	}
 	return counts

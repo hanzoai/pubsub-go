@@ -2192,7 +2192,7 @@ func (nc *Conn) parseServerURL(sURL string, implicit, saveTLSName bool) (*Server
 		u   *url.URL
 		err error
 	)
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		u, err = url.Parse(sURL)
 		if err != nil {
 			return nil, err
@@ -4884,7 +4884,7 @@ func (nc *Conn) newRespInbox() string {
 	sb.WriteString(nc.respSubPrefix)
 
 	rn := nc.respRand.Int63()
-	for i := 0; i < replySuffixLen; i++ {
+	for range replySuffixLen {
 		sb.WriteByte(rdigits[rn%base])
 		rn /= base
 	}
@@ -4991,8 +4991,8 @@ func badSubject(subj string) bool {
 	if strings.ContainsAny(subj, " \t\r\n") {
 		return true
 	}
-	tokens := strings.Split(subj, ".")
-	for _, t := range tokens {
+	tokens := strings.SplitSeq(subj, ".")
+	for t := range tokens {
 		if len(t) == 0 {
 			return true
 		}
@@ -6337,7 +6337,7 @@ func (nc *Conn) IsDraining() bool {
 func (nc *Conn) getServers(implicitOnly bool) []string {
 	poolSize := len(nc.srvPool)
 	servers := make([]string, 0)
-	for i := 0; i < poolSize; i++ {
+	for i := range poolSize {
 		if implicitOnly && !nc.srvPool[i].isImplicit {
 			continue
 		}

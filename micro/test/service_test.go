@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"math/rand"
 	"reflect"
 	"sync"
@@ -76,7 +77,7 @@ func TestServiceBasics(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		svc, err := micro.AddService(nc, config)
 		if err != nil {
 			t.Fatalf("Expected to create Service, got %v", err)
@@ -86,7 +87,7 @@ func TestServiceBasics(t *testing.T) {
 	}
 
 	// Now send 50 requests.
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		_, err := nc.Request("svc.add", []byte(`{ "x": 22, "y": 11 }`), time.Second)
 		if err != nil {
 			t.Fatalf("Expected a response, got %v", err)
@@ -1054,7 +1055,7 @@ func TestAddEndpoint_Concurrency(t *testing.T) {
 	// now add a few endpoints concurrently
 	// and make sure they are added successfully
 	// and there is no race
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		go func(i int) {
 			wg.Wait()
 			res <- srv.AddEndpoint(fmt.Sprintf("test%d", i), micro.ContextHandler(ctx, handler))
@@ -1063,7 +1064,7 @@ func TestAddEndpoint_Concurrency(t *testing.T) {
 	}
 	wg.Add(-10)
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		select {
 		case err := <-res:
 			if err != nil {
@@ -1147,7 +1148,7 @@ func TestServiceStats(t *testing.T) {
 				}
 			}
 			defer srv.Stop()
-			for i := 0; i < 10; i++ {
+			for range 10 {
 				if _, err := nc.Request("test.func", []byte("msg"), time.Second); err != nil {
 					t.Fatalf("Unexpected error: %v", err)
 				}
@@ -1410,9 +1411,7 @@ func TestRequestRespond(t *testing.T) {
 					"Nats-Service-Error-Code": []string{resp.Header.Get("Nats-Service-Error-Code")},
 					"Nats-Service-Error":      []string{resp.Header.Get("Nats-Service-Error")},
 				}
-				for k, v := range test.respondHeaders {
-					expectedHeaders[k] = v
-				}
+				maps.Copy(expectedHeaders, test.respondHeaders)
 				if !reflect.DeepEqual(expectedHeaders, micro.Headers(resp.Header)) {
 					t.Fatalf("Invalid response headers; want: %v; got: %v", test.respondHeaders, resp.Header)
 				}
@@ -1813,7 +1812,7 @@ func TestCustomQueueGroupMultipleResponses(t *testing.T) {
 	}
 	defer nc.Close()
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		f := func(i int) func(r micro.Request) {
 			return func(r micro.Request) {
 				time.Sleep(10 * time.Millisecond)
@@ -1850,7 +1849,7 @@ func TestCustomQueueGroupMultipleResponses(t *testing.T) {
 		"4": false,
 	}
 	defer sub.Unsubscribe()
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		msg, err := sub.NextMsg(1 * time.Second)
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)

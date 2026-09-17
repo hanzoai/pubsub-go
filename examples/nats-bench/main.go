@@ -161,7 +161,7 @@ func runPublisher(nc *nats.Conn, startwg, donewg *sync.WaitGroup, numMsgs int, m
 
 	start := time.Now()
 
-	for i := 0; i < numMsgs; i++ {
+	for range numMsgs {
 		nc.Publish(subj, msg)
 	}
 	nc.Flush()

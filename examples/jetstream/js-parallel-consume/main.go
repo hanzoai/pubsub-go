@@ -56,7 +56,7 @@ func main() {
 	}
 	go endlessPublish(ctx, nc, js)
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		cc, err := cons.Consume(func(consumeID int) jetstream.MessageHandler {
 			return func(msg jetstream.Msg) {
 				fmt.Printf("Received msg on consume %d\n", consumeID)

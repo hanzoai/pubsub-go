@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"strconv"
 	"time"
 
@@ -486,9 +487,7 @@ func (s *stream) Info(ctx context.Context, opts ...StreamInfoOpt) (*StreamInfo, 
 			total = resp.Total
 		}
 		if len(resp.StreamInfo.State.Subjects) > 0 {
-			for subj, msgs := range resp.StreamInfo.State.Subjects {
-				subjectMap[subj] = msgs
-			}
+			maps.Copy(subjectMap, resp.StreamInfo.State.Subjects)
 			offset = len(subjectMap)
 		}
 		if total == 0 || total <= offset {

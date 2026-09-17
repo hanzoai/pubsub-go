@@ -16,6 +16,7 @@ package test
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/http"
 	"reflect"
 	"sort"
@@ -25,9 +26,9 @@ import (
 
 	"net/http/httptest"
 
+	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/nats-server/v2/server"
 	natsserver "github.com/nats-io/nats-server/v2/test"
-	"github.com/hanzoai/pubsub-go"
 )
 
 func TestBasicHeaders(t *testing.T) {
@@ -175,7 +176,7 @@ func TestRequestMsgRaceAsyncInfo(t *testing.T) {
 
 	msg := nats.NewMsg(subject)
 	msg.Header["Hdr-Test"] = []string{"quux"}
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		nc.RequestMsg(msg, time.Second)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		nc.RequestMsgWithContext(ctx, msg)
@@ -389,9 +390,7 @@ func TestMsgHeadersCasePreserving(t *testing.T) {
 		}
 		msgCh <- resp
 
-		for k, v := range resp.Header {
-			w.Header()[k] = v
-		}
+		maps.Copy(w.Header(), resp.Header)
 
 		// Remove Date from response header for testing.
 		w.Header()["Date"] = nil

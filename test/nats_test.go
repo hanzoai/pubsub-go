@@ -26,9 +26,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/nats-server/v2/server"
 	natsserver "github.com/nats-io/nats-server/v2/test"
-	"github.com/hanzoai/pubsub-go"
 	"github.com/nats-io/nkeys"
 )
 
@@ -506,7 +506,7 @@ func TestLookupHostResultIsRandomized(t *testing.T) {
 	s2 := RunServerWithOptions(&opts)
 	defer s2.Shutdown()
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		nc, err := nats.Connect(fmt.Sprintf("localhost:%d", TEST_PORT))
 		if err != nil {
 			t.Fatalf("Error on connect: %v", err)
@@ -540,7 +540,7 @@ func TestLookupHostResultIsNotRandomizedWithNoRandom(t *testing.T) {
 	s2 := RunServerWithOptions(&opts)
 	defer s2.Shutdown()
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		nc, err := nats.Connect(fmt.Sprintf("localhost:%d", TEST_PORT), nats.DontRandomize())
 		if err != nil {
 			t.Fatalf("Error on connect: %v", err)
@@ -624,7 +624,7 @@ func TestSubscribeSyncRace(t *testing.T) {
 	}()
 
 	subj := "foo.sync.race"
-	for i := 0; i < 10000; i++ {
+	for range 10000 {
 		if _, err := nc.SubscribeSync(subj); err != nil {
 			break
 		}
@@ -825,7 +825,7 @@ func TestStatsRace(t *testing.T) {
 	}()
 
 	nc.Subscribe("foo", func(_ *nats.Msg) {})
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		nc.Publish("foo", []byte("hello"))
 	}
 
@@ -850,7 +850,7 @@ func TestRequestLeaksMapEntries(t *testing.T) {
 		nc.Publish(m.Reply, response)
 	})
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		msg, err := nc.Request("foo", nil, 500*time.Millisecond)
 		if err != nil {
 			t.Fatalf("Received an error on Request test: %s", err)

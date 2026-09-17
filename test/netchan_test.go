@@ -320,7 +320,7 @@ func TestRecvChanMultipleMessages(t *testing.T) {
 		t.Fatalf("Failed to bind to a send channel: %v\n", err)
 	}
 
-	for i := 0; i < size; i++ {
+	for range size {
 		ec.Publish("foo", 22)
 	}
 	ec.Flush()

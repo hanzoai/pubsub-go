@@ -1231,7 +1231,7 @@ func TestConsumerPrioritized(t *testing.T) {
 		}
 		defer cc2.Stop()
 
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			_, err = js.Publish(ctx, "FOO.bar", []byte("hello"))
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -1304,7 +1304,7 @@ func TestConsumerPrioritized(t *testing.T) {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			_, err = js.Publish(ctx, "FOO.bar", []byte("hello"))
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)

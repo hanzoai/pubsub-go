@@ -240,7 +240,7 @@ func testContextRequestWithCancel(t *testing.T, nc *nats.Conn) {
 	}
 	defer sub2.Unsubscribe()
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		resp, err := nc.RequestWithContext(ctx, "slow", []byte(""))
 		if err != nil {
 			t.Fatalf("Expected request with context to not fail: %s", err)
@@ -255,7 +255,7 @@ func testContextRequestWithCancel(t *testing.T, nc *nats.Conn) {
 	// A third request with latency would make the context
 	// get canceled, but these reset the timer so deadline
 	// gets extended:
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		resp, err := nc.RequestWithContext(ctx, "slower", []byte(""))
 		if err != nil {
 			t.Fatalf("Expected request with context to not fail: %s", err)
@@ -352,7 +352,7 @@ func testContextRequestWithDeadline(t *testing.T, nc *nats.Conn) {
 		nc.Publish(m.Reply, []byte("OK"))
 	})
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		resp, err := nc.RequestWithContext(ctx, "slow", []byte(""))
 		if err != nil {
 			t.Fatalf("Expected request with context to not fail: %s", err)
@@ -424,7 +424,7 @@ func TestContextSubNextMsgWithTimeout(t *testing.T) {
 		t.Fatalf("Expected to be able to subscribe: %s", err)
 	}
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		err := nc.Publish("slow", []byte("OK"))
 		if err != nil {
 			t.Fatalf("Expected publish to not fail: %s", err)
@@ -479,7 +479,7 @@ func TestContextSubNextMsgWithTimeoutCanceled(t *testing.T) {
 		t.Fatalf("Expected to be able to subscribe: %s", err)
 	}
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		err := nc.Publish("fast", []byte("OK"))
 		if err != nil {
 			t.Fatalf("Expected publish to not fail: %s", err)
@@ -544,7 +544,7 @@ func TestContextSubNextMsgWithCancel(t *testing.T) {
 		t.Fatalf("Expected to be able to subscribe: %s", err)
 	}
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		err := nc.Publish("foo", []byte("OK"))
 		if err != nil {
 			t.Fatalf("Expected publish to not fail: %s", err)
@@ -611,7 +611,7 @@ func TestContextSubNextMsgWithDeadline(t *testing.T) {
 		t.Fatalf("Expected to be able to subscribe: %s", err)
 	}
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		err := nc.Publish("slow", []byte("OK"))
 		if err != nil {
 			t.Fatalf("Expected publish to not fail: %s", err)
@@ -776,12 +776,10 @@ func TestUnsubscribeAndNextMsgWithContext(t *testing.T) {
 	// Now make sure we get same error when unsubscribing from separate routine
 	// while in the call.
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		time.Sleep(100 * time.Millisecond)
 		sub.Unsubscribe()
-		wg.Done()
-	}()
+	})
 
 	if _, err = sub.NextMsgWithContext(ctx); err != nats.ErrBadSubscription {
 		t.Fatalf("Expected '%v', but got: '%v'", nats.ErrBadSubscription, err)

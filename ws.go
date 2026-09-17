@@ -546,7 +546,7 @@ func (w *websocketWriter) writeCloseMsg() (int, error) {
 }
 
 func wsMaskBuf(key, buf []byte) {
-	for i := 0; i < len(buf); i++ {
+	for i := range buf {
 		buf[i] ^= key[i&3]
 	}
 }
@@ -796,8 +796,8 @@ func (nc *Conn) wsUpdateConnectionHeaders(req *http.Request) error {
 
 func wsPMCExtensionSupport(header http.Header) (bool, bool) {
 	for _, extensionList := range header["Sec-Websocket-Extensions"] {
-		extensions := strings.Split(extensionList, ",")
-		for _, extension := range extensions {
+		extensions := strings.SplitSeq(extensionList, ",")
+		for extension := range extensions {
 			extension = strings.Trim(extension, " \t")
 			params := strings.Split(extension, ";")
 			for i, p := range params {

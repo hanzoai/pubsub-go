@@ -19,14 +19,15 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/nats-io/nats-server/v2/server"
 	"github.com/hanzoai/pubsub-go"
 	"github.com/hanzoai/pubsub-go/jetstream"
+	"github.com/nats-io/nats-server/v2/server"
 )
 
 func TestKeyValueBasics(t *testing.T) {
@@ -240,7 +241,7 @@ func TestKeyValueHistory(t *testing.T) {
 	kv, err := js.CreateKeyValue(ctx, jetstream.KeyValueConfig{Bucket: "LIST", History: 10})
 	expectOk(t, err)
 
-	for i := 0; i < 50; i++ {
+	for i := range 50 {
 		age := strconv.FormatUint(uint64(i+22), 10)
 		_, err := kv.Put(ctx, "age", []byte(age))
 		expectOk(t, err)
@@ -1198,12 +1199,7 @@ func TestListKeysFiltered(t *testing.T) {
 }
 
 func contains(slice []string, key string) bool {
-	for _, k := range slice {
-		if k == key {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(slice, key)
 }
 
 func TestKeyValueCrossAccounts(t *testing.T) {
@@ -1727,7 +1723,7 @@ func TestKeyValueMirrorDirectGet(t *testing.T) {
 		t.Fatalf("Error creating mirror: %v", err)
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		key := fmt.Sprintf("KEY.%d", i)
 		if _, err := kv.PutString(ctx, key, "42"); err != nil {
 			t.Fatalf("Error adding key: %v", err)
@@ -1735,7 +1731,7 @@ func TestKeyValueMirrorDirectGet(t *testing.T) {
 	}
 
 	// Make sure all gets work.
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		if _, err := kv.Get(ctx, "KEY.22"); err != nil {
 			t.Fatalf("Got error getting key: %v", err)
 		}

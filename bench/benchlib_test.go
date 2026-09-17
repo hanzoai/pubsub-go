@@ -177,10 +177,10 @@ func TestBenchSetup(t *testing.T) {
 
 func makeBench(subs, pubs int) *Benchmark {
 	bench := NewBenchmark("test", subs, pubs)
-	for i := 0; i < subs; i++ {
+	for range subs {
 		bench.AddSubSample(millionMessagesSecondSample(1))
 	}
-	for i := 0; i < pubs; i++ {
+	for range pubs {
 		bench.AddPubSample(millionMessagesSecondSample(1))
 	}
 	bench.Close()

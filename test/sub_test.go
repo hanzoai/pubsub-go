@@ -824,12 +824,10 @@ func TestNextMsgCallOnClosedSub(t *testing.T) {
 		t.Fatal("Failed to subscribe: ", err)
 	}
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		time.Sleep(100 * time.Millisecond)
 		sub.Unsubscribe()
-		wg.Done()
-	}()
+	})
 
 	if _, err := sub.NextMsg(time.Second); err == nil || err != nats.ErrBadSubscription {
 		t.Fatalf("Expected '%v', but got: '%v'", nats.ErrBadSubscription, err.Error())
@@ -946,7 +944,7 @@ func TestChanSubscriberPendingLimits(t *testing.T) {
 	pending := 1000
 	total := pending + 100
 
-	for typeSubs := 0; typeSubs < 3; typeSubs++ {
+	for typeSubs := range 3 {
 
 		func() {
 			// Create our own channel.

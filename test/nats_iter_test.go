@@ -236,7 +236,7 @@ func TestQueueSubscribeIterator(t *testing.T) {
 		defer nc.Close()
 
 		subs := make([]*nats.Subscription, 4)
-		for i := 0; i < 4; i++ {
+		for i := range 4 {
 			sub, err := nc.QueueSubscribeSync("foo", "q")
 			if err != nil {
 				t.Fatal("Failed to subscribe: ", err)
@@ -247,7 +247,7 @@ func TestQueueSubscribeIterator(t *testing.T) {
 
 		// Send some messages to ourselves.
 		total := 100
-		for i := 0; i < total; i++ {
+		for i := range total {
 			if err := nc.Publish("foo", []byte(fmt.Sprintf("%d", i))); err != nil {
 				t.Fatalf("Error on publish: %v", err)
 			}

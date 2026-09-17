@@ -31,8 +31,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nats-io/nats-server/v2/server"
 	"github.com/hanzoai/pubsub-go"
+	"github.com/nats-io/nats-server/v2/server"
 	"github.com/nats-io/nuid"
 
 	natsserver "github.com/nats-io/nats-server/v2/test"
@@ -655,7 +655,7 @@ func TestJetStreamSubscribe(t *testing.T) {
 	waitForPending(t, sub2, 1)
 
 	toSend := 10
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		js.Publish("bar", msg)
 	}
 
@@ -864,7 +864,7 @@ func TestJetStreamSubscribe(t *testing.T) {
 	}
 
 	// Now go ahead and consume these and ack, but not ack+next.
-	for i := 0; i < batch; i++ {
+	for i := range batch {
 		m := bmsgs[i]
 		err = m.AckSync()
 		if err != nil {
@@ -904,7 +904,7 @@ func TestJetStreamSubscribe(t *testing.T) {
 	}
 
 	// Queue up 10 more messages.
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		js.Publish("bar", msg)
 	}
 
@@ -1024,7 +1024,7 @@ func TestJetStreamSubscribe(t *testing.T) {
 
 	// Publish more messages so that at least one is received by
 	// the channel queue subscriber.
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		js.Publish("bar", msg)
 	}
 
@@ -1247,7 +1247,7 @@ func TestPullSubscribeFetchWithHeartbeat(t *testing.T) {
 		t.Fatalf("Unexpected error: %s", err)
 	}
 	defer sub.Unsubscribe()
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		if _, err := js.Publish("foo", []byte("msg")); err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
@@ -1407,7 +1407,7 @@ func TestPullSubscribeFetchDrain(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error: %s", err)
 	}
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		if _, err := js.Publish("foo", []byte("msg")); err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
@@ -1466,7 +1466,7 @@ func TestPullSubscribeFetchBatchWithHeartbeat(t *testing.T) {
 		t.Fatalf("Unexpected error: %s", err)
 	}
 	defer sub.Unsubscribe()
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		if _, err := js.Publish("foo", []byte("msg")); err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
@@ -1607,7 +1607,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -1618,7 +1618,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		}
 		go func() {
 			time.Sleep(10 * time.Millisecond)
-			for i := 0; i < 5; i++ {
+			for range 5 {
 				js.Publish("foo", []byte("msg"))
 			}
 		}()
@@ -1640,7 +1640,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 50; i++ {
+		for range 50 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -1731,7 +1731,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -1759,7 +1759,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -1772,7 +1772,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		}
 		go func() {
 			time.Sleep(10 * time.Millisecond)
-			for i := 0; i < 5; i++ {
+			for range 5 {
 				js.Publish("foo", []byte("msg"))
 			}
 		}()
@@ -1794,7 +1794,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			js.Publish("foo", []byte("msg"))
 		}
 		res, err := sub.FetchBatch(5)
@@ -1819,7 +1819,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -1848,7 +1848,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -1875,7 +1875,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -1907,7 +1907,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -1975,7 +1975,7 @@ func TestPullSubscribeFetchBatch(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if _, err := js.Publish("foo", []byte("msg")); err != nil {
 				t.Fatalf("Unexpected error: %s", err)
 			}
@@ -2094,7 +2094,7 @@ func TestJetStreamAckPending_Pull(t *testing.T) {
 	}
 
 	const totalMsgs = 4
-	for i := 0; i < totalMsgs; i++ {
+	for i := range totalMsgs {
 		if _, err := js.Publish("foo", []byte(fmt.Sprintf("msg %d", i))); err != nil {
 			t.Fatal(err)
 		}
@@ -2108,7 +2108,7 @@ func TestJetStreamAckPending_Pull(t *testing.T) {
 	defer sub.Unsubscribe()
 
 	var msgs []*nats.Msg
-	for i := 0; i < ackPendingLimit; i++ {
+	for range ackPendingLimit {
 		ms, err := sub.Fetch(1)
 		if err != nil {
 			t.Fatalf("Error on fetch: %v", err)
@@ -2146,7 +2146,7 @@ func TestJetStreamAckPending_Push(t *testing.T) {
 	}
 
 	const totalMsgs = 3
-	for i := 0; i < totalMsgs; i++ {
+	for i := range totalMsgs {
 		if _, err := js.Publish("foo", []byte(fmt.Sprintf("msg %d", i))); err != nil {
 			t.Fatal(err)
 		}
@@ -2306,7 +2306,7 @@ func TestJetStream_Drain(t *testing.T) {
 	}
 
 	total := 500
-	for i := 0; i < total; i++ {
+	for i := range total {
 		_, err := js.Publish("drain", []byte(fmt.Sprintf("i:%d", i)))
 		if err != nil {
 			t.Error(err)
@@ -2458,7 +2458,7 @@ func TestJetStreamManagement(t *testing.T) {
 		}
 	})
 
-	for i := 0; i < 25; i++ {
+	for range 25 {
 		js.Publish("foo", []byte("hi"))
 	}
 
@@ -3372,23 +3372,21 @@ func TestAccountInfo(t *testing.T) {
 				jetstream: enabled
 			`,
 			expected: &nats.AccountInfo{
-				Tier: nats.Tier{
-					Memory:         0,
-					Store:          0,
-					Streams:        0,
-					Consumers:      0,
-					ReservedMemory: 0,
-					ReservedStore:  0,
-					Limits: nats.AccountLimits{
-						MaxMemory:            -1,
-						MaxStore:             -1,
-						MaxStreams:           -1,
-						MaxConsumers:         -1,
-						MaxAckPending:        -1,
-						MemoryMaxStreamBytes: -1,
-						StoreMaxStreamBytes:  -1,
-						MaxBytesRequired:     false,
-					},
+				Memory:         0,
+				Store:          0,
+				Streams:        0,
+				Consumers:      0,
+				ReservedMemory: 0,
+				ReservedStore:  0,
+				Limits: nats.AccountLimits{
+					MaxMemory:            -1,
+					MaxStore:             -1,
+					MaxStreams:           -1,
+					MaxConsumers:         -1,
+					MaxAckPending:        -1,
+					MemoryMaxStreamBytes: -1,
+					StoreMaxStreamBytes:  -1,
+					MaxBytesRequired:     false,
 				},
 				API: nats.APIStats{
 					Total:    0,
@@ -3420,23 +3418,21 @@ func TestAccountInfo(t *testing.T) {
 				}
 			`,
 			expected: &nats.AccountInfo{
-				Tier: nats.Tier{
-					Memory:         0,
-					Store:          0,
-					Streams:        0,
-					Consumers:      0,
-					ReservedMemory: 0,
-					ReservedStore:  0,
-					Limits: nats.AccountLimits{
-						MaxMemory:            67108864,
-						MaxStore:             33554432,
-						MaxStreams:           10,
-						MaxConsumers:         20,
-						MaxAckPending:        100,
-						MemoryMaxStreamBytes: 2048,
-						StoreMaxStreamBytes:  4096,
-						MaxBytesRequired:     true,
-					},
+				Memory:         0,
+				Store:          0,
+				Streams:        0,
+				Consumers:      0,
+				ReservedMemory: 0,
+				ReservedStore:  0,
+				Limits: nats.AccountLimits{
+					MaxMemory:            67108864,
+					MaxStore:             33554432,
+					MaxStreams:           10,
+					MaxConsumers:         20,
+					MaxAckPending:        100,
+					MemoryMaxStreamBytes: 2048,
+					StoreMaxStreamBytes:  4096,
+					MaxBytesRequired:     true,
 				},
 				Domain: "test-domain",
 				API: nats.APIStats{
@@ -3899,7 +3895,7 @@ func testJetStreamManagement_GetMsg(t *testing.T, srvs ...*jsServer) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		msg := nats.NewMsg("foo.A")
 		data := fmt.Sprintf("A:%d", i)
 		msg.Data = []byte(data)
@@ -4056,7 +4052,7 @@ func TestJetStreamManagement_DeleteMsg(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		js.Publish("foo.A", []byte("A"))
 		js.Publish("foo.B", []byte("B"))
 		js.Publish("foo.C", []byte("C"))
@@ -4175,7 +4171,7 @@ func TestJetStreamManagement_SecureDeleteMsg(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		js.Publish("foo.A", []byte("A"))
 		js.Publish("foo.B", []byte("B"))
 		js.Publish("foo.C", []byte("C"))
@@ -4454,7 +4450,7 @@ func TestJetStreamImportDirectOnly(t *testing.T) {
 
 	// Now make sure we can send to the stream from another account.
 	toSend := 100
-	for i := 0; i < toSend; i++ {
+	for i := range toSend {
 		if _, err := js.Publish("orders", []byte(fmt.Sprintf("ORDER-%d", i+1))); err != nil {
 			t.Fatalf("Unexpected error publishing message %d: %v", i+1, err)
 		}
@@ -4483,7 +4479,7 @@ func TestJetStreamImportDirectOnly(t *testing.T) {
 	waitForPending(t, toSend)
 
 	// Can also ack from the regular NATS subscription via the imported subject.
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		m, err := sub.NextMsg(100 * time.Millisecond)
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
@@ -4596,7 +4592,7 @@ func TestJetStreamCrossAccountMirrorsAndSources(t *testing.T) {
 		sourceName  = "MY_SOURCE_TEST"
 		mirrorName  = "MY_MIRROR_TEST"
 	)
-	for i := 0; i < toSend; i++ {
+	for i := range toSend {
 		data := []byte(fmt.Sprintf("OK %d", i))
 		if _, err := js1.Publish(publishSubj, data); err != nil {
 			t.Fatalf("Unexpected publish error: %v", err)
@@ -4629,7 +4625,7 @@ func TestJetStreamCrossAccountMirrorsAndSources(t *testing.T) {
 
 		checkSubsPending(t, sub, want)
 
-		for i := 0; i < want; i++ {
+		for range want {
 			msg, err := sub.NextMsg(time.Second)
 			if err != nil {
 				t.Fatal(err)
@@ -4698,7 +4694,7 @@ func TestJetStreamAutoMaxAckPending(t *testing.T) {
 	toSend := 10_000
 
 	msg := []byte("Hello")
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		// Use plain NATS here for speed.
 		nc.Publish("foo", msg)
 	}
@@ -4737,7 +4733,7 @@ func TestJetStreamAutoMaxAckPending(t *testing.T) {
 	waitForPending(expectedMaxAck)
 
 	// Now make sure we can consume them all with no slow consumers etc.
-	for i := 0; i < toSend; i++ {
+	for i := range toSend {
 		m, err := sub.NextMsg(time.Second)
 		if err != nil {
 			t.Fatalf("Unexpected error receiving %d: %v", i+1, err)
@@ -4803,7 +4799,7 @@ func TestJetStreamSubscribe_DeliverPolicy(t *testing.T) {
 
 	var publishTime time.Time
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		payload := fmt.Sprintf("i:%d", i)
 		if i == 5 {
 			publishTime = time.Now()
@@ -4833,7 +4829,6 @@ func TestJetStreamSubscribe_DeliverPolicy(t *testing.T) {
 			"deliver.startseq", nats.StartSequence(6), 5,
 		},
 	} {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			timeout := 2 * time.Second
 			if test.expected == 0 {
@@ -4897,7 +4892,7 @@ func TestJetStreamSubscribe_AckPolicy(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		payload := fmt.Sprintf("i:%d", i)
 		js.Publish("foo", []byte(payload))
 	}
@@ -4917,7 +4912,6 @@ func TestJetStreamSubscribe_AckPolicy(t *testing.T) {
 			"ack-explicit", nats.AckExplicit(), nats.AckExplicitPolicy,
 		},
 	} {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			defer cancel()
@@ -5247,7 +5241,7 @@ func TestJetStreamSubscribe_AckPolicy(t *testing.T) {
 			t.Fatalf("Expected to be redelivered at around 50ms, took %v", dur)
 		}
 		// Now it should be every 250ms or so
-		for i := 0; i < 2; i++ {
+		for i := range 2 {
 			start = time.Now()
 			_, err = sub.NextMsg(time.Second)
 			if err != nil {
@@ -5284,7 +5278,7 @@ func TestJetStreamPullSubscribe_AckPending(t *testing.T) {
 	}
 
 	const totalMsgs = 10
-	for i := 0; i < totalMsgs; i++ {
+	for i := range totalMsgs {
 		payload := fmt.Sprintf("i:%d", i)
 		js.Publish("foo", []byte(payload))
 	}
@@ -5536,7 +5530,7 @@ func TestJetStreamSubscribe_AckDup(t *testing.T) {
 		t.Errorf("Unexpected error: %v", ackErr1)
 	}
 
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		e := <-ch
 		if e != nats.ErrMsgAlreadyAckd {
 			t.Errorf("Expected error: %v", e)
@@ -6114,7 +6108,7 @@ func TestJetStreamSubscribe_RateLimit(t *testing.T) {
 	}
 
 	totalMsgs := 2048
-	for i := 0; i < totalMsgs; i++ {
+	for range totalMsgs {
 		payload := strings.Repeat("A", 1024)
 		js.Publish("foo", []byte(payload))
 	}
@@ -6197,13 +6191,13 @@ func TestJetStreamSubscribe_FilterSubjects(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
-			for i := 0; i < 5; i++ {
+			for range 5 {
 				js.Publish("foo", []byte("msg"))
 			}
-			for i := 0; i < 5; i++ {
+			for range 5 {
 				js.Publish("bar", []byte("msg"))
 			}
-			for i := 0; i < 5; i++ {
+			for range 5 {
 				js.Publish("baz", []byte("msg"))
 			}
 
@@ -6216,7 +6210,7 @@ func TestJetStreamSubscribe_FilterSubjects(t *testing.T) {
 				t.Fatalf("Unexpected error: %s", err)
 			}
 
-			for i := 0; i < 10; i++ {
+			for range 10 {
 				msg, err := sub.NextMsg(500 * time.Millisecond)
 				if err != nil {
 					t.Fatalf("Unexpected error: %s", err)
@@ -6437,7 +6431,7 @@ func setupJSClusterWithSize(t *testing.T, clusterName string, size int) []*jsSer
 	}
 
 	routes := []string{}
-	for i := 0; i < size; i++ {
+	for i := range size {
 		o := natsserver.DefaultTestOptions
 		o.JetStream = true
 		o.ServerName = fmt.Sprintf("NODE_%d", i)
@@ -6642,7 +6636,7 @@ func testJetStreamMirror_Source(t *testing.T, nodes ...*jsServer) {
 	}
 
 	totalMsgs := 10
-	for i := 0; i < totalMsgs; i++ {
+	for i := range totalMsgs {
 		payload := fmt.Sprintf("i:%d", i)
 		js.Publish("origin", []byte(payload))
 	}
@@ -6727,7 +6721,7 @@ func testJetStreamMirror_Source(t *testing.T, nodes ...*jsServer) {
 			}
 
 			mmsgs := make([]*nats.Msg, 0)
-			for i := 0; i < totalMsgs; i++ {
+			for range totalMsgs {
 				msg, err := sub.NextMsg(2 * time.Second)
 				if err != nil {
 					t.Error(err)
@@ -7077,7 +7071,7 @@ func testJetStream_ClusterMultipleQueueSubscribe(t *testing.T, subject string, s
 			defer wg.Done()
 			var sub *nats.Subscription
 			var err error
-			for attempt := 0; attempt < 5; attempt++ {
+			for range 5 {
 				sub, err = js.QueueSubscribeSync(subject, "wq", nats.Durable("shared"))
 				if err != nil {
 					time.Sleep(1 * time.Second)
@@ -7138,13 +7132,13 @@ func testJetStream_ClusterMultiplePullSubscribe(t *testing.T, subject string, sr
 	size := 5
 	subs := make([]*nats.Subscription, size)
 	errCh := make(chan error, size)
-	for i := 0; i < size; i++ {
+	for i := range size {
 		wg.Add(1)
 		go func(n int) {
 			defer wg.Done()
 			var sub *nats.Subscription
 			var err error
-			for attempt := 0; attempt < 5; attempt++ {
+			for range 5 {
 				sub, err = js.PullSubscribe(subject, "shared")
 				if err != nil {
 					time.Sleep(1 * time.Second)
@@ -7176,7 +7170,7 @@ func testJetStream_ClusterMultiplePullSubscribe(t *testing.T, subject string, sr
 		if sub == nil {
 			continue
 		}
-		for attempt := 0; attempt < 4; attempt++ {
+		for range 4 {
 			_, err := sub.Fetch(1, nats.MaxWait(250*time.Millisecond))
 			if err != nil {
 				t.Logf("%v WARN: Timeout waiting for next message: %v", i, err)
@@ -7215,7 +7209,7 @@ func testJetStream_ClusterMultipleFetchPullSubscribe(t *testing.T, subject strin
 	subs := make([]*nats.Subscription, nsubs)
 	errCh := make(chan error, nsubs)
 	var queues sync.Map
-	for i := 0; i < nsubs; i++ {
+	for i := range nsubs {
 		wg.Add(1)
 		go func(n int) {
 			defer wg.Done()
@@ -7272,7 +7266,7 @@ func testJetStream_ClusterMultipleFetchPullSubscribe(t *testing.T, subject strin
 				}
 
 				// Wait until all messages have been consumed.
-				for attempt := 0; attempt < 4; attempt++ {
+				for range 4 {
 					recvd, err := sub.Fetch(batchSize, nats.MaxWait(1*time.Second))
 					if err != nil {
 						if err == nats.ErrConnectionClosed {
@@ -7412,7 +7406,7 @@ func testJetStream_ClusterReconnectDurableQueueSubscriber(t *testing.T, subject 
 		t.Error(err)
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		payload := fmt.Sprintf("i:%d", i)
 		js.Publish(subject, []byte(payload))
 	}
@@ -7423,7 +7417,7 @@ func testJetStream_ClusterReconnectDurableQueueSubscriber(t *testing.T, subject 
 	msgs := make(chan *nats.Msg, totalMsgs)
 
 	// Create some queue subscribers.
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		expected := totalMsgs
 		dname := "dur"
 		_, err = js.QueueSubscribe(subject, "wg", func(m *nats.Msg) {
@@ -7555,7 +7549,7 @@ func testJetStream_ClusterReconnectDurablePushSubscriber(t *testing.T, subject s
 	}
 
 	// Initial burst of messages.
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		payload := fmt.Sprintf("i:%d", i)
 		js.Publish(subject, []byte(payload))
 	}
@@ -7665,7 +7659,7 @@ func testJetStream_ClusterReconnectPullQueueSubscriber(t *testing.T, subject str
 		t.Error(err)
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		payload := fmt.Sprintf("i:%d", i)
 		_, err := js.Publish(subject, []byte(payload))
 		if err != nil {
@@ -7675,7 +7669,7 @@ func testJetStream_ClusterReconnectPullQueueSubscriber(t *testing.T, subject str
 
 	subs := make([]*nats.Subscription, 0)
 
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		sub, err := js.PullSubscribe(subject, "d1", nats.PullMaxWaiting(5))
 		if err != nil {
 			t.Fatal(err)
@@ -7755,7 +7749,7 @@ NextMsg:
 	}
 
 	// Confirm the number of messages.
-	for i := 0; i < totalMsgs; i++ {
+	for i := range totalMsgs {
 		msg := fmt.Sprintf("i:%d", i)
 		count, ok := recvd[msg]
 		if !ok {
@@ -7795,7 +7789,7 @@ func testJetStreamFetchOptions(t *testing.T, srvs ...*jsServer) {
 
 	sendMsgs := func(t *testing.T, totalMsgs int) {
 		t.Helper()
-		for i := 0; i < totalMsgs; i++ {
+		for i := range totalMsgs {
 			payload := fmt.Sprintf("i:%d", i)
 			_, err := js.Publish(subject, []byte(payload))
 			if err != nil {
@@ -7954,7 +7948,7 @@ func testJetStreamFetchOptions(t *testing.T, srvs ...*jsServer) {
 
 		var wg sync.WaitGroup
 		wg.Add(2)
-		for i := 0; i < 2; i++ {
+		for range 2 {
 			go func() {
 				defer wg.Done()
 
@@ -8136,7 +8130,7 @@ func TestJetStreamPublishAsync(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		if _, err = js.PublishAsync("bar", []byte("Hello JS ASYNC PUB")); err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
@@ -8151,7 +8145,7 @@ func TestJetStreamPublishAsync(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 500; i++ {
+	for range 500 {
 		if _, err = js.PublishAsync("bar", []byte("Hello JS ASYNC PUB")); err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
@@ -8219,7 +8213,7 @@ func TestPublishAsyncResetPendingOnReconnect(t *testing.T) {
 	done := make(chan struct{}, 1)
 	acks := make(chan nats.PubAckFuture, 100)
 	go func() {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			if ack, err := js.PublishAsync("FOO", []byte("hello")); err != nil {
 				errs <- err
 				return
@@ -8399,7 +8393,7 @@ func TestPublishAsyncRetryInErrHandler(t *testing.T) {
 	errs := make(chan error, 1)
 	done := make(chan struct{}, 1)
 	go func() {
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			if _, err := js.PublishAsync("FOO.A", []byte("hello")); err != nil {
 				errs <- err
 				return
@@ -8454,10 +8448,10 @@ func TestJetStreamPublishAsyncPerf(t *testing.T) {
 	rand.Read(msg)
 
 	// Setup error handler.
-	var errors uint32
+	var errors atomic.Uint32
 	errHandler := func(js nats.JetStream, originalMsg *nats.Msg, err error) {
 		t.Logf("Got an async err: %v", err)
-		atomic.AddUint32(&errors, 1)
+		errors.Add(1)
 	}
 
 	js, err := nc.JetStream(
@@ -8474,7 +8468,7 @@ func TestJetStreamPublishAsyncPerf(t *testing.T) {
 
 	toSend := 1000000
 	start := time.Now()
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		if _, err = js.PublishAsync("B", msg); err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
@@ -8482,7 +8476,7 @@ func TestJetStreamPublishAsyncPerf(t *testing.T) {
 
 	select {
 	case <-js.PublishAsyncComplete():
-		if ne := atomic.LoadUint32(&errors); ne > 0 {
+		if ne := errors.Load(); ne > 0 {
 			t.Fatalf("Got unexpected errors publishing")
 		}
 	case <-time.After(5 * time.Second):
@@ -8642,7 +8636,7 @@ func TestJetStreamCleanupPublisher(t *testing.T) {
 		numSubs := nc.NumSubscriptions()
 
 		var acks []nats.PubAckFuture
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			ack, err := js.PublishAsync("FOO", []byte("hello"))
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -8689,7 +8683,7 @@ func TestJetStreamCleanupPublisher(t *testing.T) {
 		}
 
 		// check that async error handler is called for each pending ack
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			select {
 			case err := <-cbErr:
 				if !errors.Is(err, nats.ErrJetStreamPublisherClosed) {
@@ -8800,7 +8794,7 @@ func TestJetStreamBindConsumer(t *testing.T) {
 		t.Fatalf("StreamInfo is not correct %+v", si)
 	}
 
-	for i := 0; i < 25; i++ {
+	for range 25 {
 		js.Publish("foo", []byte("hi"))
 	}
 
@@ -8943,7 +8937,7 @@ func TestJetStreamBindConsumer(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 	// Consumer all
-	for i := 0; i < 25; i++ {
+	for range 25 {
 		msg, err := sub2.NextMsg(time.Second)
 		if err != nil {
 			t.Fatalf("Error on NextMsg: %v", err)
@@ -8955,7 +8949,7 @@ func TestJetStreamBindConsumer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		js.Publish("foo", []byte("new"))
 	}
 	// We expect sub3 to at least get a message
@@ -9105,7 +9099,7 @@ func TestJetStreamMaxMsgsPerSubject(t *testing.T) {
 
 			pubAndCheck := func(subj string, num int, expectedNumMsgs uint64) {
 				t.Helper()
-				for i := 0; i < num; i++ {
+				for range num {
 					if _, err = js.Publish(subj, []byte("TSLA")); err != nil {
 						t.Fatalf("Unexpected publish error: %v", err)
 					}
@@ -9329,7 +9323,7 @@ func testJetStreamFetchContext(t *testing.T, srvs ...*jsServer) {
 
 	sendMsgs := func(t *testing.T, totalMsgs int) {
 		t.Helper()
-		for i := 0; i < totalMsgs; i++ {
+		for i := range totalMsgs {
 			payload := fmt.Sprintf("i:%d", i)
 			_, err := js.Publish(subject, []byte(payload))
 			if err != nil {
@@ -9601,7 +9595,7 @@ func TestJetStreamSubscribeContextCancel(t *testing.T) {
 	}
 
 	toSend := 100
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		js.Publish("bar", []byte("foo"))
 	}
 
@@ -9646,8 +9640,7 @@ func TestJetStreamSubscribeContextCancel(t *testing.T) {
 	})
 
 	t.Run("unsubscribe cancels child context", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		ctx := t.Context()
 
 		sub, err := js.Subscribe("bar", func(msg *nats.Msg) {}, nats.Context(ctx))
 		if err != nil {
@@ -9828,7 +9821,7 @@ func TestJetStreamRePublish(t *testing.T) {
 	}
 
 	msg, toSend := []byte("OK TO REPUBLISH?"), 100
-	for i := 0; i < toSend; i++ {
+	for range toSend {
 		js.Publish("foo", msg)
 		js.Publish("bar", msg)
 		js.Publish("baz", msg)
@@ -10512,15 +10505,13 @@ func TestJetStreamConcurrentQueueDurablePushConsumers(t *testing.T) {
 	var wg sync.WaitGroup
 	mx := &sync.Mutex{}
 
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for range 10 {
+		wg.Go(func() {
 			sub, _ := js.QueueSubscribeSync("foo", "bar")
 			mx.Lock()
 			subs = append(subs, sub)
 			mx.Unlock()
-		}()
+		})
 	}
 	// Wait for all the consumers.
 	wg.Wait()
@@ -10535,7 +10526,7 @@ func TestJetStreamConcurrentQueueDurablePushConsumers(t *testing.T) {
 
 	// Now send some messages and make sure they are distributed.
 	total := 1000
-	for i := 0; i < total; i++ {
+	for range total {
 		js.Publish("foo", []byte("Hello"))
 	}
 
@@ -10789,7 +10780,7 @@ func TestJetStreamExpiredPullRequests(t *testing.T) {
 	}
 
 	// Send 2 fetch requests
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		if _, err = sub.Fetch(1, nats.MaxWait(15*time.Millisecond)); err == nil {
 			t.Fatalf("Expected error, got none")
 		}
@@ -10973,7 +10964,7 @@ func TestJetStreamStreamInfoWithSubjectDetails(t *testing.T) {
 
 	// Publish on enough subjects to exercise the pagination
 	payload := make([]byte, 10)
-	for i := 0; i < 100001; i++ {
+	for i := range 100001 {
 		_, err := js.Publish(fmt.Sprintf("test.%d", i), payload)
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
@@ -11100,7 +11091,7 @@ func TestPullConsumerFetchRace(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		if _, err := js.Publish("FOO.123", []byte(fmt.Sprintf("msg-%d", i))); err != nil {
 			t.Fatalf("Unexpected error during publish: %s", err)
 		}

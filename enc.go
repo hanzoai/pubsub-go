@@ -185,7 +185,7 @@ func argInfo(cb Handler) (reflect.Type, int) {
 	return cbType.In(numArgs - 1), numArgs
 }
 
-var emptyMsgType = reflect.TypeOf(&Msg{})
+var emptyMsgType = reflect.TypeFor[*Msg]()
 
 // Subscribe will create a subscription on the given subject and process incoming
 // messages using the specified Handler. The Handler should be a func that matches
@@ -224,7 +224,7 @@ func (c *EncodedConn) subscribe(subject, queue string, cb Handler) (*Subscriptio
 			oV = []reflect.Value{reflect.ValueOf(m)}
 		} else {
 			var oPtr reflect.Value
-			if argType.Kind() != reflect.Ptr {
+			if argType.Kind() != reflect.Pointer {
 				oPtr = reflect.New(argType)
 			} else {
 				oPtr = reflect.New(argType.Elem())
@@ -237,7 +237,7 @@ func (c *EncodedConn) subscribe(subject, queue string, cb Handler) (*Subscriptio
 				}
 				return
 			}
-			if argType.Kind() != reflect.Ptr {
+			if argType.Kind() != reflect.Pointer {
 				oPtr = reflect.Indirect(oPtr)
 			}
 

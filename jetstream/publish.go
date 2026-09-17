@@ -443,7 +443,7 @@ func (js *jetStream) newAsyncReply() (string, error) {
 		sha := sha256.New()
 		sha.Write([]byte(nuid.Next()))
 		b := sha.Sum(nil)
-		for i := 0; i < aReplyTokensize; i++ {
+		for i := range aReplyTokensize {
 			b[i] = rdigits[int(b[i]%base)]
 		}
 		js.publisher.replyPrefix = fmt.Sprintf("%s%s.", js.opts.replyPrefix, b[:aReplyTokensize])

@@ -86,7 +86,7 @@ func (c *EncodedConn) bindRecvChan(subject, queue string, channel any) (*Subscri
 
 	cb := func(m *Msg) {
 		var oPtr reflect.Value
-		if argType.Kind() != reflect.Ptr {
+		if argType.Kind() != reflect.Pointer {
 			oPtr = reflect.New(argType)
 		} else {
 			oPtr = reflect.New(argType.Elem())
@@ -98,7 +98,7 @@ func (c *EncodedConn) bindRecvChan(subject, queue string, channel any) (*Subscri
 			}
 			return
 		}
-		if argType.Kind() != reflect.Ptr {
+		if argType.Kind() != reflect.Pointer {
 			oPtr = reflect.Indirect(oPtr)
 		}
 		// This is a bit hacky, but in this instance we may be trying to send to a closed channel.

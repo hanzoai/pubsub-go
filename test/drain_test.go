@@ -50,7 +50,7 @@ func TestDrain(t *testing.T) {
 		t.Fatalf("Error creating subscription; %v", err)
 	}
 
-	for i := int32(0); i < expected; i++ {
+	for range expected {
 		nc.Publish("foo", []byte("Don't forget about me"))
 	}
 
@@ -103,14 +103,14 @@ func TestDrainQueueSub(t *testing.T) {
 		}
 	}
 
-	for i := int32(0); i < numSubs; i++ {
+	for range numSubs {
 		_, err := nc.QueueSubscribe("foo", "bar", callback)
 		if err != nil {
 			t.Fatalf("Error creating subscription; %v", err)
 		}
 	}
 
-	for i := int32(0); i < expected; i++ {
+	for range expected {
 		nc.Publish("foo", []byte("Don't forget about me"))
 	}
 
@@ -151,7 +151,7 @@ func TestDrainUnSubs(t *testing.T) {
 	subs := make([]*nats.Subscription, num)
 
 	// Normal Unsubscribe
-	for i := 0; i < num; i++ {
+	for i := range num {
 		sub, err := nc.Subscribe("foo", func(_ *nats.Msg) {})
 		if err != nil {
 			t.Fatalf("Error creating subscription; %v", err)
@@ -162,7 +162,7 @@ func TestDrainUnSubs(t *testing.T) {
 	if numSubs := nc.NumSubscriptions(); numSubs != num {
 		t.Fatalf("Expected %d subscriptions, got %d", num, numSubs)
 	}
-	for i := 0; i < num; i++ {
+	for i := range num {
 		subs[i].Unsubscribe()
 	}
 	if numSubs := nc.NumSubscriptions(); numSubs != 0 {
@@ -170,7 +170,7 @@ func TestDrainUnSubs(t *testing.T) {
 	}
 
 	// Drain version
-	for i := 0; i < num; i++ {
+	for i := range num {
 		sub, err := nc.Subscribe("foo", func(_ *nats.Msg) {})
 		if err != nil {
 			t.Fatalf("Error creating subscription; %v", err)
@@ -181,7 +181,7 @@ func TestDrainUnSubs(t *testing.T) {
 	if numSubs := nc.NumSubscriptions(); numSubs != num {
 		t.Fatalf("Expected %d subscriptions, got %d", num, numSubs)
 	}
-	for i := 0; i < num; i++ {
+	for i := range num {
 		subs[i].Drain()
 	}
 	// Should happen quickly that we get to zero, so do not need to wait long.
@@ -210,7 +210,7 @@ func TestDrainSlowSubscriber(t *testing.T) {
 	}
 
 	total := 10
-	for i := 0; i < total; i++ {
+	for range total {
 		nc.Publish("foo", []byte("Slow Slow"))
 	}
 	nc.Flush()
@@ -290,7 +290,7 @@ func TestDrainConnection(t *testing.T) {
 	}
 
 	// Publish some messages
-	for i := int32(0); i < expected; i++ {
+	for range expected {
 		nc.PublishRequest("foo", "bar", []byte("Slow Slow"))
 	}
 
@@ -377,7 +377,7 @@ func TestDrainConnectionAutoUnsub(t *testing.T) {
 	sub.AutoUnsubscribe(int(expected))
 
 	// Publish some messages
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		nc.Publish("foo", []byte("Only 10 please!"))
 	}
 	// Flush here so messages coming back into client.
